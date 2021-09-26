@@ -5,7 +5,8 @@
 - 更加适合ThinkPHP开发人员
 - 增加Nested Transaction也就是嵌套事务或者事务嵌套，目前在仿TPORM方面唯一一个支持NT功能的框架
 - 缓存支持，原版本功能已经放弃开发，本版在这个部分会使用Redis模块来支持，但是当前功能建议大家使用TuuzGoWeb来解决缓存问题
-
+- 对新特性支持快，replace/nested transaction只要你想它有它就能有
+- 去v2后缀，go get -u 直接升级，引入模块无需加v2后缀
 
 
 [![GoDoc](https://godoc.org/github.com/tobycroft/gorose-pro?status.svg)](https://godoc.org/github.com/tobycroft/gorose-pro)
@@ -31,7 +32,9 @@
 如下的开发实例我已经在自己的项目和多个商业项目中跑过了，代码上没有问题，在书写或者思想上如果和你有冲突你可以用你自己的模式来，这里只是给刚玩的朋友准备的
 
 [文档开发实例1](./doc/intro.md)
+
 [文档开发实例2](./doc/intro.md)
+
 [文档开发实例3](./doc/intro.md)
 
 ## 简介
