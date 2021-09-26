@@ -308,6 +308,17 @@ func (dba *Orm) Reset() IOrm {
 	//return NewOrm(dba.GetIEngin())
 }
 
+// Reset  orm api and bind values reset to init
+func (dba *Orm) ResetWithOutNewApi() IOrm {
+	dba.ClearBindValues()
+	dba.ResetUnion()
+	dba.ResetTable()
+	dba.ResetWhere()
+	dba.ResetExtraCols()
+	return dba
+	//return NewOrm(dba.GetIEngin())
+}
+
 // ResetTable ...
 func (dba *Orm) ResetTable() IOrm {
 	dba.GetISession().SetIBinder(NewBinder())
@@ -362,6 +373,8 @@ func (dba *Orm) BuildSql(operType ...string) (a string, b []interface{}, err err
 	// 所以, 在这里做一下数据绑定重置操作
 	if dba.GetISession().GetTransaction() {
 		dba.Reset()
+	} else {
+		dba.ResetWithOutNewApi()
 	}
 	// 这里统一清理一下绑定的数据吧, 万一要复用了, 造成绑定数据感染, 就尴尬了
 	dba.ClearBindValues()
