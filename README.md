@@ -1,5 +1,13 @@
 # GoRose-Pro for Commercial(专业版)
 
+## 原版和Pro版本区别（原版没有的功能）+（猜你关心）
+
+- 更加适合ThinkPHP开发人员
+- 增加Nested Transaction也就是嵌套事务或者事务嵌套，目前在仿TPORM方面唯一一个支持NT功能的框架
+- 缓存支持，原版本功能已经放弃开发，本版在这个部分会使用Redis模块来支持，但是当前功能建议大家使用TuuzGoWeb来解决缓存问题
+
+
+
 [![GoDoc](https://godoc.org/github.com/tobycroft/gorose-pro?status.svg)](https://godoc.org/github.com/tobycroft/gorose-pro)
 [![Go Report Card](https://goreportcard.com/badge/github.com/tobycroft/gorose-pro)](https://goreportcard.com/report/github.com/tobycroft/gorose-pro)
 [![GitHub release](https://img.shields.io/github/release/tobycroft/gorose.svg)](https://github.com/tobycroft/gorose-pro/releases/latest)
@@ -342,11 +350,6 @@ gorose2.0 完全模块化, 每一个模块都封装了interface接口api, 模块
 
 
 
-## 原版和Pro版本区别（原版没有的功能）+（猜你关心）
-
-- 更加适合ThinkPHP开发人员
-- 增加Nested Transaction也就是嵌套事务或者事务嵌套，目前在仿TPORM方面唯一一个支持NT功能的框架
-- 缓存支持，原版本功能已经放弃开发，本版在这个部分会使用Redis模块来支持，但是当前功能建议大家使用TuuzGoWeb来解决缓存问题
 
 ## 故障排查
 - Gorose存在很多问题，有些问题你可能会遇到，下面列出：
