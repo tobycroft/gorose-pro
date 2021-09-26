@@ -41,7 +41,7 @@
 
 [文档开发实例2](./doc/intro.md)
 
-[文档开发实例3](./doc/intro.md)
+
 
 ## 简介
 
@@ -74,6 +74,7 @@ go get -u github.com/tobycroft/gorose-pro
 
 ## api预览(详情请参阅文档，或如下演示)
 
+[文档开发实例3](./doc/intro.md)
 ```go
 db.Table("table_name").Fields().Where().GroupBy().Having().OrderBy().Limit().Select()
 db.Table(&ModelStruct).Data().Replace()
