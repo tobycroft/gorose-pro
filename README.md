@@ -7,6 +7,7 @@
 - 缓存支持，原版本功能已经放弃开发，本版在这个部分会使用Redis模块来支持，但是当前功能建议大家使用TuuzGoWeb来解决缓存问题
 - 对新特性支持快，replace/nested transaction只要你想它有它就能有
 - 去v2后缀，go get -u 直接升级，引入模块无需加v2后缀
+- 优先支持MySQL和MariaDB，相信90%用这个框架做商业项目的开发者都是用这两个
 
 
 [![GoDoc](https://godoc.org/github.com/tobycroft/gorose-pro?status.svg)](https://godoc.org/github.com/tobycroft/gorose-pro)
