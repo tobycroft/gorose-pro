@@ -258,9 +258,9 @@ var config2 = gorose.Config{Dsn:  上面的dsn}
 var config3 = gorose.Config{Dsn:  上面的dsn}
 var config4 = gorose.Config{Dsn:  上面的dsn}
 var configCluster = &gorose.ConfigCluster{
-Master:  []gorose.Config{config3, config4},
-Slave: []gorose.Config{config1, config2},
-Driver: "sqlite3",
+    Master:  []gorose.Config{config3, config4},
+    Slave: []gorose.Config{config1, config2},
+    Driver: "sqlite3",
 }
 ```
 
@@ -272,7 +272,7 @@ engin, err := Open(config)
 //engin, err := Open(configCluster)
 
 if err != nil {
-panic(err.Error())
+    panic(err.Error())
 }
 ```
 
