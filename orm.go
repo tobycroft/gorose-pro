@@ -275,6 +275,7 @@ func (dba *Orm) Truncate() (err error) {
 		return
 	}
 	_, err = dba.Execute("TRUNCATE " + dba.table)
+	dba.ResetTable()
 	return
 }
 
