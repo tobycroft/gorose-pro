@@ -50,7 +50,7 @@ type IOrm interface {
 	WhereNotBetween(needle string, hystack []interface{}) IOrm
 	OrWhereNotBetween(needle string, hystack []interface{}) IOrm
 	// truncate
-	//Truncate()
+	Truncate() error
 	GetDriver() string
 	//GetIBinder() IBinder
 	SetBindValues(v interface{})

@@ -267,6 +267,17 @@ func (dba *Orm) OrWhereNotBetween(needle string, hystack []interface{}) IOrm {
 	return dba.OrWhere(needle, "NOT BETWEEN", hystack)
 }
 
+// Truncate ...
+func (dba *Orm) Truncate() (err error) {
+	dba.table, err = dba.GetISession().GetTableName()
+	if err != nil {
+		dba.GetISession().GetIEngin().GetLogger().Error(err.Error())
+		return
+	}
+	_, err = dba.Execute("TRUNCATE " + dba.table)
+	return
+}
+
 // Join : select join query
 func (dba *Orm) Join(args ...interface{}) IOrm {
 	dba._joinBuilder("INNER", args)
