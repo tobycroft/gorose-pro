@@ -413,15 +413,16 @@ func (dba *Orm) Paginate(page ...int) (res Data, err error) {
 	}
 	var offset = dba.GetOffset()
 	var currentPage = int(math.Ceil(float64(offset+1) / float64(limit)))
-
 	// 统计总量
 	dba.offset = 0
-	dba.GetIBinder().SetBindType(OBJECT_STRING)
 	tabname := dba.GetISession().GetIBinder().GetBindName()
 	prefix := dba.GetISession().GetIBinder().GetBindPrefix()
-	tabname2 := strings.TrimPrefix(tabname, prefix)
-	dba.ResetTable()
-	dba.Table(tabname2)
+	resData, err := dba.Get()
+	if err != nil {
+		return
+	}
+	dba.GetISession().GetIBinder().SetBindName(tabname)
+	dba.GetISession().GetIBinder().SetBindPrefix(prefix)
 	count, err := dba.Count()
 	if err != nil {
 		return
@@ -429,13 +430,8 @@ func (dba *Orm) Paginate(page ...int) (res Data, err error) {
 	var lastPage = int(math.Ceil(float64(count) / float64(limit)))
 	var nextPage = currentPage + 1
 	var prevPage = currentPage - 1
-	//dba.ResetUnion()
 	// 获取结果
-	err = dba.Select()
-	resData := dba.GetISession().GetBindAll()
-	if err != nil {
-		return
-	}
+
 	res = Data{
 		"total":          count,
 		"per_page":       limit,
@@ -445,9 +441,8 @@ func (dba *Orm) Paginate(page ...int) (res Data, err error) {
 		"last_page_url":  lastPage,
 		"next_page_url":  If(nextPage > lastPage, nil, nextPage),
 		"prev_page_url":  If(prevPage < 1, nil, prevPage),
-		//"data":           dba.GetIBinder().GetBindResultSlice().Interface(),
+		//"data":          dba.GetISession().GetBindAll(),
 		"data": resData,
 	}
-
 	return
 }
