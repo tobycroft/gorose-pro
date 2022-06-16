@@ -413,14 +413,15 @@ func (dba *Orm) Paginate(page ...int) (res Data, err error) {
 	}
 	var offset = dba.GetOffset()
 	var currentPage = int(math.Ceil(float64(offset+1) / float64(limit)))
+	//dba.ResetUnion()
 	// 统计总量
-	dba.offset = 0
 	tabname := dba.GetISession().GetIBinder().GetBindName()
 	prefix := dba.GetISession().GetIBinder().GetBindPrefix()
 	resData, err := dba.Get()
 	if err != nil {
 		return
 	}
+	dba.offset = 0
 	dba.GetISession().GetIBinder().SetBindName(tabname)
 	dba.GetISession().GetIBinder().SetBindPrefix(prefix)
 	count, err := dba.Count()
