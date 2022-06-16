@@ -416,13 +416,23 @@ func (dba *Orm) Paginate(page ...int) (res Data, err error) {
 
 	// 统计总量
 	dba.offset = 0
+	dba.GetIBinder().SetBindType(OBJECT_STRING)
+	tabname := dba.GetISession().GetIBinder().GetBindName()
+	prefix := dba.GetISession().GetIBinder().GetBindPrefix()
+	tabname2 := strings.TrimPrefix(tabname, prefix)
+	dba.ResetTable()
+	dba.Table(tabname2)
 	count, err := dba.Count()
+	if err != nil {
+		return
+	}
 	var lastPage = int(math.Ceil(float64(count) / float64(limit)))
 	var nextPage = currentPage + 1
 	var prevPage = currentPage - 1
 	//dba.ResetUnion()
 	// 获取结果
-	resData, err := dba.Get()
+	err = dba.Select()
+	resData := dba.GetISession().GetBindAll()
 	if err != nil {
 		return
 	}
