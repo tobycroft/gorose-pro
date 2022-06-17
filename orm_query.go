@@ -417,14 +417,18 @@ func (dba *Orm) Paginate(page ...int) (res Data, err error) {
 	// 统计总量
 	tabname := dba.GetISession().GetIBinder().GetBindName()
 	prefix := dba.GetISession().GetIBinder().GetBindPrefix()
+	where := dba.where
 	resData, err := dba.Get()
+	//fmt.Println(dba.LastSql())
 	if err != nil {
 		return
 	}
 	dba.offset = 0
 	dba.GetISession().GetIBinder().SetBindName(tabname)
 	dba.GetISession().GetIBinder().SetBindPrefix(prefix)
+	dba.where = where
 	count, err := dba.Count()
+	//fmt.Println(dba.LastSql())
 	if err != nil {
 		return
 	}
