@@ -423,6 +423,9 @@ func (dba *Orm) Paginate(page ...int) (res Data, err error) {
 	if err != nil {
 		return
 	}
+	if resData == nil {
+		resData = []Data{}
+	}
 	dba.offset = 0
 	dba.GetISession().GetIBinder().SetBindName(tabname)
 	dba.GetISession().GetIBinder().SetBindPrefix(prefix)
