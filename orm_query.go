@@ -403,7 +403,81 @@ func (dba *Orm) Loop(limit int, callback func([]Data) error) (err error) {
 //		}
 //	]
 //}
-func (dba *Orm) Paginate(page ...int) (res Paginate, err error) {
+func (dba *Orm) Paginate(page ...int) (res Data, err error) {
+	if len(page) > 0 {
+		dba.Page(page[0])
+	}
+	var limit = dba.GetLimit()
+	if limit == 0 {
+		limit = 15
+	}
+	var offset = dba.GetOffset()
+	var currentPage = int(math.Ceil(float64(offset+1) / float64(limit)))
+	//dba.ResetUnion()
+	// 统计总量
+	tabname := dba.GetISession().GetIBinder().GetBindName()
+	prefix := dba.GetISession().GetIBinder().GetBindPrefix()
+	where := dba.where
+	resData, err := dba.Get()
+	//fmt.Println(dba.LastSql())
+	if err != nil {
+		return
+	}
+	dba.offset = 0
+	dba.GetISession().GetIBinder().SetBindName(tabname)
+	dba.GetISession().GetIBinder().SetBindPrefix(prefix)
+	dba.where = where
+	count, err := dba.Count()
+	//fmt.Println(dba.LastSql())
+	if err != nil {
+		return
+	}
+	var lastPage = int(math.Ceil(float64(count) / float64(limit)))
+	var nextPage = currentPage + 1
+	var prevPage = currentPage - 1
+	// 获取结果
+
+	res = Data{
+		"total":          count,
+		"per_page":       limit,
+		"current_page":   currentPage,
+		"last_page":      lastPage,
+		"first_page_url": 1,
+		"last_page_url":  lastPage,
+		"next_page_url":  If(nextPage > lastPage, nil, nextPage),
+		"prev_page_url":  If(prevPage < 1, nil, prevPage),
+		//"data":          dba.GetISession().GetBindAll(),
+		"data": resData,
+	}
+	return
+}
+
+// Paginate 自动分页
+// @param limit 每页展示数量
+// @param current_page 当前第几页, 从1开始
+// 以下是laravel的Paginate返回示例
+//{
+//	"total": 50,
+//	"per_page": 15,
+//	"current_page": 1,
+//	"lastPage": 4,
+//	"first_page_url": "http://laravel.app?page=1",
+//	"lastPage_url": "http://laravel.app?page=4",
+//	"nextPage_url": "http://laravel.app?page=2",
+//	"prevPage_url": null,
+//	"path": "http://laravel.app",
+//	"from": 1,
+//	"to": 15,
+//	"data":[
+//		{
+//		// Result Object
+//		},
+//		{
+//		// Result Object
+//		}
+//	]
+//}
+func (dba *Orm) Paginator(page ...int) (res Paginate, err error) {
 	if len(page) > 0 {
 		dba.Page(page[0])
 	}
