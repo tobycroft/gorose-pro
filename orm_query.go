@@ -403,7 +403,7 @@ func (dba *Orm) Loop(limit int, callback func([]Data) error) (err error) {
 //		}
 //	]
 //}
-func (dba *Orm) Paginate(page ...int) (res Data, err error) {
+func (dba *Orm) Paginate(page ...int) (res Paginate, err error) {
 	if len(page) > 0 {
 		dba.Page(page[0])
 	}
@@ -437,17 +437,17 @@ func (dba *Orm) Paginate(page ...int) (res Data, err error) {
 	var prevPage = currentPage - 1
 	// 获取结果
 
-	res = Data{
-		"total":          count,
-		"per_page":       limit,
-		"current_page":   currentPage,
-		"last_page":      lastPage,
-		"first_page_url": 1,
-		"last_page_url":  lastPage,
-		"next_page_url":  If(nextPage > lastPage, nil, nextPage),
-		"prev_page_url":  If(prevPage < 1, nil, prevPage),
+	res = Paginate{
+		Total:        count,
+		PerPage:      limit,
+		CurrentPage:  currentPage,
+		LastPage:     lastPage,
+		FirstPageUrl: 1,
+		LastPageUrl:  lastPage,
+		NextPageUrl:  If(nextPage > lastPage, nil, nextPage),
+		PrevPageUrl:  If(prevPage < 1, nil, prevPage),
 		//"data":          dba.GetISession().GetBindAll(),
-		"data": resData,
+		Data: resData,
 	}
 	return
 }

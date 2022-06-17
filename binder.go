@@ -13,6 +13,19 @@ type Map t.MapStringT
 // Data ...
 type Data map[string]interface{}
 
+//Paginate
+type Paginate struct {
+	Total        int64       `json:"total",gorose:"total" :"total"`
+	PerPage      int         `json:"per_page",gorose:"per_page" :"per_page"`
+	CurrentPage  int         `json:"current_page",gorose:"current_page" :"current_page"`
+	LastPage     int         `json:"last_page",gorose:"last_page" :"last_page"`
+	FirstPageUrl int64       `json:"first_page_url",gorose:"first_page_url" :"first_page_url"`
+	LastPageUrl  int         `json:"last_page_url",gorose:"last_page_url" :"last_page_url"`
+	NextPageUrl  interface{} `json:"next_page_url",gorose:"next_page_url" :"next_page_url"`
+	PrevPageUrl  interface{} `json:"prev_page_url",gorose:"prev_page_url" :"prev_page_url"`
+	Data         []Data      `json:"data",gorose:"data" :"data"`
+}
+
 // BindType ...
 type BindType int
 
