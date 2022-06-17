@@ -423,6 +423,7 @@ func (dba *Orm) Paginate(page ...int) (res Data, err error) {
 	if err != nil {
 		return
 	}
+
 	if resData == nil {
 		resData = []Data{}
 	}
