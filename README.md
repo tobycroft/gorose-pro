@@ -93,7 +93,7 @@ db.Table(....).Where().Delete()
     - [更新Update](./wiki/Update方法)
 - 单条查询（对象）
     - [Find/First返回对象](./wiki/Find-First查询返回Obj对象方法)
-- 多条查询（[]Map[string]interface{}
+- 多条/联合查询（[]Map[string]interface{}
     - [Get/Select返回数组](./wiki/Get-Select方法)
     - [Join联合查询](./wiki/Join-Select方法)
 - Query方法
