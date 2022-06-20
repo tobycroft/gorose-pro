@@ -89,66 +89,25 @@ db.Table(....).Data().Where().Update()
 db.Table(....).Where().Delete()
 ```
 
-## Thinkphp模式用法示例
+## 详细示例（查看Wiki）
 
-```go
+- 增删改
+    - [增加Insert](./wiki/Insert新增数据)
+    - [删除Delete](./wiki/Delete删除数据)
+    - [更新Update](./wiki/Update方法)
+- 单条查询（对象）
+    - [Find/First返回对象](./wiki/Find-First查询返回Obj对象方法)
+- 多条查询（[]Map[string]interface{}
+    - [Get/Select返回数组](./wiki/Get-Select方法)
+    - [Join联合查询](./wiki/Join-Select方法)
+- Query方法
+    - [更新数据](./wiki/Query方法)
 
-//删
+删
 
+改
 
-//修改
-func Api_update_password(qq, password interface{}) bool {
-    db := tuuz.Db().Table(table)
-    where := map[string]interface{}{
-        "qq": qq,
-    }
-    db.Where(where)
-    data := map[string]interface{}{
-        "password": password,
-    }
-    db.Data(data)
-    _, err := db.Update()
-    if err != nil {
-        Log.Dbrr(err, tuuz.FUNCTION_ALL())
-        return false
-    } else {
-        return true
-    }
-}
-
-//查询单条
-func Api_find(qq interface{}) gorose.Data {
-    db := tuuz.Db().Table(table)
-    where := map[string]interface{}{
-        "qq": qq,
-    }
-    db.Where(where)
-    ret, err := db.First()
-    if err != nil {
-        Log.Dbrr(err, tuuz.FUNCTION_ALL())
-        return nil
-    } else {
-        return ret
-    }
-}
-
-//查询多条
-func Api_select(qq interface{}) []gorose.Data {
-    db := tuuz.Db().Table(table)
-    where := map[string]interface{}{
-        "qq": qq,
-    }
-    db.Where(where)
-    ret, err := db.Get()
-    if err != nil {
-        Log.Dbrr(err, tuuz.FUNCTION_ALL())
-        return nil
-    } else {
-        return ret
-    }
-}
-
-```
+查
 
 ## 使用建议
 
