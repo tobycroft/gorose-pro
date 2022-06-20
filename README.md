@@ -102,6 +102,8 @@ db.Table(....).Where().Delete()
     - [Join联合查询](./wiki/Join-Select方法)
 - Query方法
     - [更新数据](./wiki/Query方法)
+- 嵌套事务
+    - [支付环境下复杂的嵌套事务](./wiki/支付环境下复杂的嵌套事务)
 
 ## 配置和链接初始化
 
