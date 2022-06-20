@@ -42,11 +42,21 @@
 - 修复了高并发下，where等参数的的脏数据问题(如果你在用原版，避免生产环境使用单db)
 - 修复了Paginate不能用的问题，并且新增Paginator，让返回更加清晰
 
-## 文档
+## 实例文档（Wiki）
 
-如下为MAC架构下的解耦式写法
-
-[文档开发实例1](./doc/intro.md)
+- 增删改
+    - [增加Insert](./wiki/Insert新增数据)
+    - [删除Delete](./wiki/Delete删除数据)
+    - [更新Update](./wiki/Update方法)
+- 单条查询（对象）
+    - [Find/First返回对象](./wiki/Find-First查询返回Obj对象方法)
+- 多条/联合查询（[]Map[string]interface{}
+    - [Get/Select返回数组](./wiki/Get-Select方法)
+    - [Join联合查询](./wiki/Join-Select方法)
+- Query方法
+    - [更新数据](./wiki/Query方法)
+- 嵌套事务
+    - [支付环境下复杂的嵌套事务实例](./wiki/支付环境下复杂的嵌套事务)
 
 ## 简介
 
@@ -84,22 +94,6 @@ db.Table(&ModelStruct).Data().Insert()
 db.Table(....).Data().Where().Update()
 db.Table(....).Where().Delete()
 ```
-
-## 实例文档（Wiki）
-
-- 增删改
-    - [增加Insert](./wiki/Insert新增数据)
-    - [删除Delete](./wiki/Delete删除数据)
-    - [更新Update](./wiki/Update方法)
-- 单条查询（对象）
-    - [Find/First返回对象](./wiki/Find-First查询返回Obj对象方法)
-- 多条/联合查询（[]Map[string]interface{}
-    - [Get/Select返回数组](./wiki/Get-Select方法)
-    - [Join联合查询](./wiki/Join-Select方法)
-- Query方法
-    - [更新数据](./wiki/Query方法)
-- 嵌套事务
-    - [支付环境下复杂的嵌套事务实例](./wiki/支付环境下复杂的嵌套事务)
 
 ## 配置和链接初始化
 
