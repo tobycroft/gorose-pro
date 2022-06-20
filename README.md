@@ -25,7 +25,7 @@
 - 支持事务嵌套
 - go get -u 直接升级，每次升级均做到向上向下兼容无需担心更新后不兼容导致的事故
 - 跟深度支持MySQL和MariaDB
-- 项目文档示例支援更丰富
+- 文档超详细，你可以在我的文档中找到99%
 - 采用"直觉编程"优化，即使没用过也能更快上手
 - 100%兼容原版
 - 更快的PR/BUG响应+修复速度
@@ -35,6 +35,7 @@
 
 - 为了解决原版框架不再更新维护后可能带来的风险问题
 - 为了解决原框架在商业项目实战中出现的各类弊端
+- 巨细无遗的文档，无论你是PHP->Go还是纯新手，你都可以在文档中找到对应
 
 ## 故障修复
 
@@ -91,65 +92,6 @@ db.Table(....).Where().Delete()
 ## Thinkphp模式用法示例
 
 ```go
-package main
-
-import (
-    "github.com/tobycroft/gorose-pro"
-)
-
-func dsn() string {
-    dbname := "GobotQ2"
-    dbuser := "GobotQ"
-    dbpass := "123456"
-    dbhost := "10.0.0.170"
-    conntype := "tcp"
-    dbport := "3306"
-    charset := "utf8mb4"
-    return dbuser + ":" + dbpass + "@" + conntype + "(" + dbhost + ":" + dbport + ")/" + dbname + "?charset=" + charset + "&parseTime=true"
-}
-
-func DbConfig() *gorose.Config {
-    var conf gorose.Config
-    conf.Driver = "mysql"
-    conf.SetMaxIdleConns = 90
-    conf.SetMaxOpenConns = 300
-    conf.Prefix = ""
-    conf.Dsn = dsn()
-    return &conf
-}
-
-func init() {
-    var err error
-    Database, err = gorose.Open(DbConfig())
-    if err != nil {
-        log.Panic(err)
-    }
-}
-
-func DB() gorose.IOrm {
-    return database.Database.NewOrm()
-}
-
-//这里是Model层，Model采用单例模式
-
-//增
-func Api_insert(qq, token, ip interface{}) bool {
-    db := tuuz.Db().Table(table)
-    data := map[string]interface{}{
-        "qq":    qq,
-        "token": token,
-        "ip":    ip,
-    }
-    db.Data(data)
-    _, err := db.Insert()
-    //_, err := db.Replace()也可以使用replace方法，看你个人
-    if err != nil {
-        Log.Dbrr(err, tuuz.FUNCTION_ALL())
-        return false
-    } else {
-        return true
-    }
-}
 
 //删
 func Api_delete_byToken(qq, token interface{}) bool {
