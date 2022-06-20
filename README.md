@@ -1,5 +1,4 @@
-# GoRose-Pro for Commercial(专业版)
-
+# GoRose-ORM-Pro for Commercial(专业版)
 
 [![GoDoc](https://godoc.org/github.com/tobycroft/gorose-pro?status.svg)](https://godoc.org/github.com/tobycroft/gorose-pro)
 [![Go Report Card](https://goreportcard.com/badge/github.com/tobycroft/gorose-pro)](https://goreportcard.com/report/github.com/tobycroft/gorose-pro)
@@ -19,43 +18,32 @@
  ╚═════╝  ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚══════╝    ╚═╝     ╚═╝  ╚═╝ ╚═════╝ 
 ~~~
 
-
 ## 原版和Pro版本区别（原版没有的功能）+（猜你关心）
 
-- 更加适合ThinkPHP开发人员
-- 增加Nested Transaction也就是嵌套事务或者事务嵌套，目前在仿TPORM方面唯一一个支持NT功能的框架
-- 缓存支持，原版本功能已经放弃开发，本版在这个部分会使用Redis模块来支持，但是当前功能建议大家使用TuuzGoWeb来解决缓存问题
-- 对新特性支持快，replace/nested transaction只要你想它有它就能有
-- 去v2后缀，go get -u 直接升级，引入模块无需加v2后缀
-- 优先支持MySQL和MariaDB，相信90%用这个框架做商业项目的开发者都是用这两个
-- 项目文档示例支援丰富，配合NT支援，让你可以像写ThinkPHP/Laraval那样写Gorose-Pro
+- 更加适合ThinkPHP/Laravel开发人员
+- 支持事务嵌套，大大减少耦合度
+- go get -u 直接升级
+- 跟深度支持MySQL和MariaDB
+- 项目文档示例支援更丰富
+- 采用"直觉编程"优化，即使没用过也能更快上手
+- 100%兼容原版
+- 更快的BUG响应+修复速度
+- 所有的更新/Bug修复完全来自于当前正在编写的商业项目，不可能出现更新后不管的情况
 
 ## 本项目目的
 
-- 本人是从PHP转过来的，至今所有项目除了AOSS项目，其他的能公开的不能公开的项目均已经切换到Golang
-- Gorose数据库框架是从我开始写Golang起就一直用的一个框架
-- 在不停写项目的过程中，我逐渐发现框架的健壮以及它所存在的不足，有些功能上的不足严重到到我不得不修它，于是才有了Pro版
-- 不想造轮子，但是向源项目PR周期太长了，一个NT功能我从第一版更新到最后一版已经半年了，做项目哪里等得起这么修哦？每次都要用replace在gomod里面替换不如我自己维护一个branch，说不定还能造福其他的小伙伴
-- 本框架我和原作者聊过了，可以发Branch，另外我名字也依然保留叫Gorose只是在后面加Pro
-- 原框架作者可能要等1.18做更新了，而且如果泛型没有性能优化，我觉得现在这种使用模式还挺方便的
+- 为了解决原作者没动力更新导致的各类未修复问题
 
+## 故障修复
 
-## 修缮保证
-- 只要是我自己做项目遇到的Bug，我会小心求证后发版，新功能不会影响老功能
-- 原作者修的故障点，我这边会平移更新过来，请大家放心
-
-## 故障修复/更新
 - 修复了单db连接下，where等参数的的脏数据问题（这个问题原版目前1年了依旧暂未修复，v1.2.7已修复）
-
-
+- 修复了Paginate各种不好用不能用的问题，并新增Paginator，让返回更加优雅
 
 ## 文档
 
 如下的开发实例我已经在自己的项目和多个商业项目中跑过了，代码上没有问题，在书写或者思想上如果和你有冲突你可以用你自己的模式来，这里只是给刚玩的朋友准备的
 
 [文档开发实例1](./doc/intro.md)
-
-
 
 ## 简介
 
@@ -89,6 +77,7 @@ go get -u github.com/tobycroft/gorose-pro
 ## api预览(详情请参阅文档，或如下演示)
 
 [文档开发实例3](./doc/intro.md)
+
 ```go
 db.Table("table_name").Fields().Where().GroupBy().Having().OrderBy().Limit().Select()
 db.Table(&ModelStruct).Data().Replace()
@@ -151,7 +140,7 @@ func Api_insert(qq, token, ip interface{}) bool {
     }
     db.Data(data)
     _, err := db.Insert()
-	//_, err := db.Replace()也可以使用replace方法，看你个人
+    //_, err := db.Replace()也可以使用replace方法，看你个人
     if err != nil {
         Log.Dbrr(err, tuuz.FUNCTION_ALL())
         return false
@@ -259,9 +248,9 @@ var config2 = gorose.Config{Dsn:  上面的dsn}
 var config3 = gorose.Config{Dsn:  上面的dsn}
 var config4 = gorose.Config{Dsn:  上面的dsn}
 var configCluster = &gorose.ConfigCluster{
-    Master:  []gorose.Config{config3, config4},
-    Slave: []gorose.Config{config1, config2},
-    Driver: "sqlite3",
+Master:  []gorose.Config{config3, config4},
+Slave: []gorose.Config{config1, config2},
+Driver: "sqlite3",
 }
 ```
 
@@ -273,7 +262,7 @@ engin, err := Open(config)
 //engin, err := Open(configCluster)
 
 if err != nil {
-    panic(err.Error())
+panic(err.Error())
 }
 ```
 
@@ -281,13 +270,12 @@ if err != nil {
 自动化没那么多JJYY的规矩，只要你会写Thinkphp或者Laravel，你就可以按照自己的编程习惯来开发，
 这一点上我和原作者想法是相同的
 
-
 ## 故障排查
+
 - Gorose存在很多问题，有些问题你可能会遇到，下面列出：
-  - 请尽量不要使用框架的主从模式，无论是TP还是Gorose，他能提供的稳定性，一定是不如你直接去买RDS之类的产品的，不要试图在该花钱的时候省钱
-  - 出现锁机制：如果出现锁机制，排查起来请先看慢查询，正常如果时间太长，如果你恰好使用的是我推荐的书写模式，你就能定位超时点，对超时点进行分析即可，老版本在长期使用中确实有出现锁的问题，新版目前没有出现，但是也请大家注意，如果出现了，重启数据库即可解决，如果你对这个功能很不放心，你也可以不使用嵌套查询解决
-
-
+    - 请尽量不要使用框架的主从模式，无论是TP还是Gorose，他能提供的稳定性，一定是不如你直接去买RDS之类的产品的，不要试图在该花钱的时候省钱
+    -
+  出现锁机制：如果出现锁机制，排查起来请先看慢查询，正常如果时间太长，如果你恰好使用的是我推荐的书写模式，你就能定位超时点，对超时点进行分析即可，老版本在长期使用中确实有出现锁的问题，新版目前没有出现，但是也请大家注意，如果出现了，重启数据库即可解决，如果你对这个功能很不放心，你也可以不使用嵌套查询解决
 
 ## Stargazers over time
 
