@@ -7,6 +7,7 @@
 ![GitHub](https://img.shields.io/github/license/tobycroft/gorose?color=blue)
 ![GitHub All Releases](https://img.shields.io/github/downloads/tobycroft/gorose/total?color=blue)
 <a target="_blank" href="https://qm.qq.com/cgi-bin/qm/qr?k=P0R-T6lnM--WHzgvGPnbd58US3IUoDlW&jump_from=webapi">
+94537310
 <img border="0" src="http://pub.idqqimg.com/wpa/images/group.png" alt="gorose-orm" title="gorose-orm"></a>
 
 ~~~
@@ -20,36 +21,37 @@
 
 ## 原版和Pro版本区别（原版没有的功能）+（猜你关心）
 
-- 更加适合ThinkPHP/Laravel开发人员
-- 支持事务嵌套，大大减少耦合度
-- go get -u 直接升级
+- 直觉式编程，更加适合ThinkPHP/Laravel开发人员
+- 支持事务嵌套
+- go get -u 直接升级，每次升级均做到向上向下兼容无需担心更新后不兼容导致的事故
 - 跟深度支持MySQL和MariaDB
 - 项目文档示例支援更丰富
 - 采用"直觉编程"优化，即使没用过也能更快上手
 - 100%兼容原版
-- 更快的BUG响应+修复速度
+- 更快的PR/BUG响应+修复速度
 - 所有的更新/Bug修复完全来自于当前正在编写的商业项目，不可能出现更新后不管的情况
 
 ## 本项目目的
 
-- 为了解决原作者没动力更新导致的各类未修复问题
+- 为了解决原版框架不再更新维护后可能带来的风险问题
+- 为了解决原框架在商业项目实战中出现的各类弊端
 
 ## 故障修复
 
-- 修复了单db连接下，where等参数的的脏数据问题（这个问题原版目前1年了依旧暂未修复，v1.2.7已修复）
-- 修复了Paginate各种不好用不能用的问题，并新增Paginator，让返回更加优雅
+- 修复了高并发下，where等参数的的脏数据问题(如果你在用原版，避免生产环境使用单db)
+- 修复了Paginate不能用的问题，并且新增Paginator，让返回更加清晰
 
 ## 文档
 
-如下的开发实例我已经在自己的项目和多个商业项目中跑过了，代码上没有问题，在书写或者思想上如果和你有冲突你可以用你自己的模式来，这里只是给刚玩的朋友准备的
+如下文档均采用解耦模式编写，MAC架构，当然你依然可以使用原文档提供的写法
 
 [文档开发实例1](./doc/intro.md)
 
 ## 简介
 
-gorose for Tuuz版是我从飞哥接手过来的项目，知道人家更新了好几版然后可能有点没兴趣了，但是我是做项目的 很多时候如果原作者不更新，我项目中有很多麻烦事都没办法解决，所以很无奈只能继续扛旗向前走了
+GorosePro是一个升级改版项目，在支持原框架所有功能的基础上修复了BUG，更加适合复杂的商业项目
 
-因为原版框架已经很优秀了，所以这里只会做一些更新，在架构上不会做出大调整（如果大家满意这个Pro版，请Star）
+支持解耦式开发和直觉式编程，大大降低你的试错成本，让小型项目开发速度比PHP更快，让大型项目更加容易维护，
 
 ## 安装
 
