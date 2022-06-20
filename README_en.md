@@ -30,7 +30,7 @@
 - Dealing PR & Bug fix much more sooner
 - All function has been tested and verified by commercial projects
 
-## 本项目目的
+## Purpose of this project
 
 - 为了解决原版框架不再更新维护后可能带来的风险问题
 - 为了解决原框架在商业项目实战中出现的各类弊端
