@@ -94,21 +94,7 @@ db.Table(....).Where().Delete()
 ```go
 
 //删
-func Api_delete_byToken(qq, token interface{}) bool {
-    db := tuuz.Db().Table(table)
-    where := map[string]interface{}{
-        "qq":    qq,
-        "token": token,
-    }
-    db.Where(where)
-    _, err := db.Delete()
-    if err != nil {
-        Log.Dbrr(err, tuuz.FUNCTION_ALL())
-        return false
-    } else {
-        return true
-    }
-}
+
 
 //修改
 func Api_update_password(qq, password interface{}) bool {
