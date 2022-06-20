@@ -77,10 +77,6 @@ go get -u github.com/tobycroft/gorose-pro
 - mssql : https://github.com/denisenkom/go-mssqldb
 - clickhouse : https://github.com/kshvakov/clickhouse
 
-## api预览(详情请参阅文档，或如下演示)
-
-[文档开发实例3](./doc/intro.md)
-
 ```go
 db.Table("table_name").Fields().Where().GroupBy().Having().OrderBy().Limit().Select()
 db.Table(&ModelStruct).Data().Replace()
@@ -89,7 +85,7 @@ db.Table(....).Data().Where().Update()
 db.Table(....).Where().Delete()
 ```
 
-## 详细示例（查看Wiki）
+## 实例文档（Wiki）
 
 - 增删改
     - [增加Insert](./wiki/Insert新增数据)
