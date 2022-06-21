@@ -32,23 +32,23 @@
 
 ## Purpose of this project
 
-- 为了解决原版框架不再更新维护后可能带来的风险问题
-- 为了解决原框架在商业项目实战中出现的各类弊端
-- 巨细无遗的文档，无论你是PHP->Go还是纯新手，你都可以在文档中找到对应
+- Avoid the risk of the deprecation of the original ver
+- To solve the shortage during coding in the real life
+- Massive demos from the document, what ever the skill you are, you still able to find a solution here
 
-## 故障修复
+## Bug Fix
 
-- 修复了高并发下，where等参数的的脏数据问题(如果你在用原版，避免生产环境使用单db)
-- 修复了Paginate不能用的问题，并且新增Paginator，让返回更加清晰
+- Dirty Read under concurrency circumstances(this will be only and easily triggered by using *db mode)
+- Paginate fixed, this function finally come back to life, new "Paginator" function make it much more easier to use
 
-## 实例文档（Wiki）
+## Docs and Demos（Wiki）
 
-- 增删改
-    - [增加Insert](./wiki/Insert新增数据)
-    - [删除Delete](./wiki/Delete删除数据)
-    - [更新Update](./wiki/Update方法)
-- 单条查询（对象）
-    - [Find/First返回对象](./wiki/Find-First查询返回Obj对象方法)
+- CUD
+    - [Insert](./wiki/Insert新增数据)
+    - [Delete](./wiki/Delete删除数据)
+    - [Update](./wiki/Update方法)
+- R as object(Map[string]interface{})
+    - [Find/First](./wiki/Find-First查询返回Obj对象方法)
 - 多条/联合查询（[]Map[string]interface{}
     - [Get/Select返回数组](./wiki/Get-Select方法)
     - [Join联合查询](./wiki/Join-Select方法)
