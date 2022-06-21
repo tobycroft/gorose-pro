@@ -60,7 +60,7 @@
 
 ## Introduction
 
-Gorosepro is an upgrade and revision project. It fixes bugs on the basis of supporting all functions of the original
+Gorosepro is an upgrade and revision project of GOORM. It fixes bugs on the basis of supporting all functions of the original
 framework and is more suitable for complex commercial projects
 
 Support decoupling development and intuitive programming, greatly reduce your trial and error cost, make small projects
