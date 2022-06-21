@@ -52,7 +52,7 @@
 - R in array or by join（[]Map[string]interface{}
     - [Get/Select](./wiki/Get-Select方法)
     - [Join](./wiki/Join-Select方法)
-    - [Paginator](Paginator复杂的子查询分页构建)
+    - [Paginator](./wiki/Paginator复杂的子查询分页构建)
 - Raw SQL sentence mode
     - [Query](./wiki/Query方法)
 - Nested Transaction(only support in GorosePro)
