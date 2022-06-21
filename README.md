@@ -54,6 +54,7 @@
 - 多条/联合查询（[]Map[string]interface{}
     - [Get/Select返回数组](./wiki/Get-Select方法)
     - [Join联合查询](./wiki/Join-Select方法)
+    - [Paginator复杂的子查询分页构建](Paginator复杂的子查询分页构建)
 - Query方法
     - [Query方法使用原生语句查询](./wiki/Query方法)
 - 嵌套事务
