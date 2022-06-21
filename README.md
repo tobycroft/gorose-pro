@@ -46,7 +46,7 @@
 ## 实例文档（Wiki）
 
 - 增删改
-    - [增加Insert](./wiki/Insert新增数据)
+    - [增加Insert](/wiki/Insert新增数据)
     - [删除Delete](./wiki/Delete删除数据)
     - [更新Update](./wiki/Update方法)
 - 单条查询（对象）(Map[string]interface{})
