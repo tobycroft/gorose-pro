@@ -22,7 +22,7 @@
 ## What the difference between this than the OriginalVer.
 
 - Intuition Coding
-- Supported Nested Transactions
+- Nested Transactions functionality
 - Simple update without any hesitation ,fully compatible with earlier versions
 - Fully support MySQL and MariaDB
 - Document support as detail as possible
@@ -49,23 +49,25 @@
     - [Update](./wiki/Update方法)
 - R as object(Map[string]interface{})
     - [Find/First](./wiki/Find-First查询返回Obj对象方法)
-- 多条/联合查询（[]Map[string]interface{}
-    - [Get/Select返回数组](./wiki/Get-Select方法)
-    - [Join联合查询](./wiki/Join-Select方法)
-- Query方法
-    - [更新数据](./wiki/Query方法)
-- 嵌套事务
-    - [支付环境下复杂的嵌套事务实例](./wiki/支付环境下复杂的嵌套事务)
+- R in array or by join（[]Map[string]interface{}
+    - [Get/Select](./wiki/Get-Select方法)
+    - [Join](./wiki/Join-Select方法)
+- Raw SQL sentence mode
+    - [Query](./wiki/Query方法)
+- Nested Transaction(only support in GorosePro)
+    - [Demos](./wiki/支付环境下复杂的嵌套事务)
 
-## 简介
+## Introduction
 
-GorosePro是一个升级改版项目，在支持原框架所有功能的基础上修复了BUG，更加适合复杂的商业项目
+Gorosepro is an upgrade and revision project. It fixes bugs on the basis of supporting all functions of the original
+framework and is more suitable for complex commercial projects
 
-支持解耦式开发和直觉式编程，大大降低你的试错成本，让小型项目开发速更快，让大型项目更加容易维护
+Support decoupling development and intuitive programming, greatly reduce your trial and error cost, make small projects
+develop faster, and make large projects easier to maintain
 
-## 安装
+## Installation
 
-- go.mod 中添加
+- Add in go.mod
 
 ```bash
 require github.com/tobycroft/gorose-pro v1.2.5
@@ -77,7 +79,7 @@ require github.com/tobycroft/gorose-pro v1.2.5
 go get -u github.com/tobycroft/gorose-pro
 ```
 
-## 支持驱动
+## Driver support
 
 - mysql : https://github.com/go-sql-driver/mysql
 - sqlite3 : https://github.com/mattn/go-sqlite3
@@ -94,9 +96,9 @@ db.Table(....).Data().Where().Update()
 db.Table(....).Where().Delete()
 ```
 
-## 配置和链接初始化
+## Initializing
 
-简单配置DSN
+DSN mode
 
 ```go
 var conf gorose.Config
@@ -108,7 +110,10 @@ conf.Dsn = dsn()
 return &conf
 ```
 
-更多配置, 可以配置集群,甚至可以同时配置不同数据库在一个集群中, 数据库会随机选择集群的数据库来完成对应的读写操作, 其中master是写库, slave是读库, 需要自己做好主从复制, 这里只负责读写
+For more configurations, you can configure the cluster, or even configure different databases at the same time. In a
+cluster, the database will randomly select the database of the cluster to complete the corresponding read-write
+operations. The master is the write database, and the slave is the read database. You need to do master-slave
+replication. Here, you are only responsible for reading and writing
 
 ```go
 var config1 = gorose.Config{Dsn: 上面的dsn}
@@ -122,7 +127,7 @@ Driver: "sqlite3",
 }
 ```
 
-初始化使用
+Initialize then use
 
 ```go
 var engin *gorose.Engin
@@ -133,17 +138,6 @@ if err != nil {
 panic(err.Error())
 }
 ```
-
-这里跳过原生操作，如果你喜欢这么操作，你也不会来用这个框架，这个框架就是简单方便，
-自动化没那么多JJYY的规矩，只要你会写Thinkphp或者Laravel，你就可以按照自己的编程习惯来开发，
-这一点上我和原作者想法是相同的
-
-## 故障排查
-
-- Gorose存在很多问题，有些问题你可能会遇到，下面列出：
-    - 请尽量不要使用框架的主从模式，无论是TP还是Gorose，他能提供的稳定性，一定是不如你直接去买RDS之类的产品的，不要试图在该花钱的时候省钱
-    -
-  出现锁机制：如果出现锁机制，排查起来请先看慢查询，正常如果时间太长，如果你恰好使用的是我推荐的书写模式，你就能定位超时点，对超时点进行分析即可，老版本在长期使用中确实有出现锁的问题，新版目前没有出现，但是也请大家注意，如果出现了，重启数据库即可解决，如果你对这个功能很不放心，你也可以不使用嵌套查询解决
 
 ## Stargazers over time
 
