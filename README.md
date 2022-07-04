@@ -46,23 +46,23 @@
 ## 实例文档（Wiki）
 
 - 增删改
-    - [增加Insert](./wiki/Insert新增数据)
-    - [删除Delete](./wiki/Delete删除数据)
-    - [更新Update](./wiki/Update方法)
+    - [增加Insert](https://github.com/tobycroft/gorose-pro/wiki/Insert新增数据)
+    - [删除Delete](https://github.com/tobycroft/gorose-pro/wiki/Delete删除数据)
+    - [更新Update](https://github.com/tobycroft/gorose-pro/wiki/Update方法)
 - 单条查询（对象）(Map[string]interface{})
-    - [Find/First返回对象](./wiki/Find-First查询返回Obj对象方法)
+    - [Find/First返回对象](https://github.com/tobycroft/gorose-pro/wiki/Find-First查询返回Obj对象方法)
 - 多条/联合查询（[]Map[string]interface{}
-    - [Get/Select返回数组](./wiki/Get-Select方法)
-    - [Join联合查询](./wiki/Join-Select方法)
-    - [Paginator复杂的子查询分页构建](./wiki/Paginator复杂的子查询分页构建)
+    - [Get/Select返回数组](https://github.com/tobycroft/gorose-pro/wiki/Get-Select方法)
+    - [Join联合查询](https://github.com/tobycroft/gorose-pro/wiki/Join-Select方法)
+    - [Paginator复杂的子查询分页构建](https://github.com/tobycroft/gorose-pro/wiki/Paginator复杂的子查询分页构建)
 - Query方法
-    - [Query方法使用原生语句查询](./wiki/Query方法)
+    - [Query方法使用原生语句查询](https://github.com/tobycroft/gorose-pro/wiki/Query方法)
 - 嵌套事务
-    - [支付环境下复杂的嵌套事务实例](./wiki/支付环境下复杂的嵌套事务)
+    - [支付环境下复杂的嵌套事务实例](https://github.com/tobycroft/gorose-pro/wiki/支付环境下复杂的嵌套事务)
 
 ## 简介
 
-GorosePro是一个升级改版项目，在支持原框架所有功能的基础上修复了BUG，更加适合复杂的商业项目
+GorosePro是一个GolangOrm升级改版项目，在支持原框架所有功能的基础上修复了BUG，更加适合复杂的商业项目
 
 支持解耦式开发和直觉式编程，大大降低你的试错成本，让小型项目开发速更快，让大型项目更加容易维护
 
