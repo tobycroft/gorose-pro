@@ -30,6 +30,8 @@
 - 100%兼容原版
 - 更快的PR/BUG响应+修复速度
 - 所有的更新/Bug修复完全来自于当前正在编写的商业项目，不可能出现更新后不管的情况
+- 支持复杂Where/OrWhere条件下的and/or条件查询（复杂环境下极好用！）
+- 更加好用的Paginator行数，高效不出错
 
 ## 本项目目的
 
@@ -42,23 +44,24 @@
 
 - 修复了高并发下，where等参数的的脏数据问题(如果你在用原版，避免生产环境使用单db)
 - 修复了Paginate不能用的问题，并且新增Paginator，让返回更加清晰
+- 修复原版Count和GroupBy同时使用时会出现的Total(总条数)错误的问题
 
 ## 实例文档（Wiki）
 
 - 增删改
-    - [增加Insert](./wiki/Insert新增数据)
-    - [删除Delete](./wiki/Delete删除数据)
-    - [更新Update](./wiki/Update方法)
+    - [增加Insert](https://github.com/tobycroft/gorose-pro/wiki/Insert新增数据)
+    - [删除Delete](https://github.com/tobycroft/gorose-pro/wiki/Delete删除数据)
+    - [更新Update](https://github.com/tobycroft/gorose-pro/wiki/Update方法)
 - 单条查询（对象）(Map[string]interface{})
-    - [Find/First返回对象](./wiki/Find-First查询返回Obj对象方法)
+    - [Find/First返回对象](https://github.com/tobycroft/gorose-pro/wiki/Find-First查询返回Obj对象方法)
 - 多条/联合查询（[]Map[string]interface{}
-    - [Get/Select返回数组](./wiki/Get-Select方法)
-    - [Join联合查询](./wiki/Join-Select方法)
-    - [Paginator复杂的子查询分页构建](./wiki/Paginator复杂的子查询分页构建)
+    - [Get/Select返回数组](https://github.com/tobycroft/gorose-pro/wiki/Get-Select方法)
+    - [Join联合查询](https://github.com/tobycroft/gorose-pro/wiki/Join-Select方法)
+    - [Paginator复杂的子查询分页构建](https://github.com/tobycroft/gorose-pro/wiki/Paginator复杂的子查询分页构建)
 - Query方法
-    - [Query方法使用原生语句查询](./wiki/Query方法)
+    - [Query方法使用原生语句查询](https://github.com/tobycroft/gorose-pro/wiki/Query方法)
 - 嵌套事务
-    - [支付环境下复杂的嵌套事务实例](./wiki/支付环境下复杂的嵌套事务)
+    - [支付环境下复杂的嵌套事务实例](https://github.com/tobycroft/gorose-pro/wiki/支付环境下复杂的嵌套事务)
 
 ## 简介
 

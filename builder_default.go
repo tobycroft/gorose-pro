@@ -428,6 +428,7 @@ func (b *BuilderDefault) BuildOffset() string {
 
 // parseWhere : parse where condition
 func (b *BuilderDefault) parseWhere(ormApi IOrm) (string, error) {
+
 	// 取出所有where
 	wheres := ormApi.GetWhere()
 	// where解析后存放每一项的容器
@@ -477,21 +478,44 @@ func (b *BuilderDefault) parseWhere(ormApi IOrm) (string, error) {
 					where = append(where, condition+" ("+strings.Join(whereArr, " and ")+")")
 				}
 			case []interface{}: // 一维数组
-				var whereArr []string
-				whereMoreLength := len(paramReal)
-				switch whereMoreLength {
-				case 3, 2, 1:
-					res, err := b.parseParams(paramReal, ormApi)
-					if err != nil {
-						return res, err
+				switch params[0].([]interface{})[0].(type) {
+				case map[string]interface{}:
+					var whereArrs [][]string
+					for _, iparamReal2 := range paramReal {
+						var whereArr []string
+						for key, val := range iparamReal2.(map[string]interface{}) {
+							whereArr = append(whereArr, b.current.AddFieldQuotes(key)+"="+b.GetPlaceholder())
+							b.SetBindValues(val)
+						}
+						whereArrs = append(whereArrs, whereArr)
 					}
-					whereArr = append(whereArr, res)
+					if len(whereArrs) != 0 {
+						var whereArr []string
+						for _, arr := range whereArrs {
+							whereArr = append(whereArr, " ("+strings.Join(arr, " "+"and"+" ")+")")
+						}
+						where = append(where, condition+" ("+strings.Join(whereArr, " "+condition+" ")+")")
+					}
+					break
+
 				default:
-					return "", errors.New("where data format is wrong")
+					var whereArr []string
+					whereMoreLength := len(paramReal)
+					switch whereMoreLength {
+					case 3, 2, 1:
+						res, err := b.parseParams(paramReal, ormApi)
+						if err != nil {
+							return res, err
+						}
+						whereArr = append(whereArr, res)
+					default:
+						return "", errors.New("where data format is wrong1")
+					}
+					if len(whereArr) != 0 {
+						where = append(where, condition+" ("+strings.Join(whereArr, " and ")+")")
+					}
 				}
-				if len(whereArr) != 0 {
-					where = append(where, condition+" ("+strings.Join(whereArr, " and ")+")")
-				}
+
 			case [][]interface{}: // 二维数组
 				var whereMore []string
 				for _, arr := range paramReal { // {{"a", 1}, {"id", ">", 1}}
@@ -504,7 +528,7 @@ func (b *BuilderDefault) parseWhere(ormApi IOrm) (string, error) {
 						}
 						whereMore = append(whereMore, res)
 					default:
-						return "", errors.New("where data format is wrong")
+						return "", errors.New("where data format is wrong2")
 					}
 				}
 				if len(whereMore) != 0 {
@@ -525,7 +549,7 @@ func (b *BuilderDefault) parseWhere(ormApi IOrm) (string, error) {
 				// 嵌套的where放入一个括号内
 				where = append(where, condition+" ("+wherenested+")")
 			default:
-				return "", errors.New("where data format is wrong")
+				return "", errors.New("where data format is wrong3")
 			}
 		}
 	}

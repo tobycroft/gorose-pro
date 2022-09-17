@@ -1,6 +1,7 @@
 package gorose
 
 import (
+	//"fmt"
 	"github.com/gohouse/t"
 	"math"
 	"reflect"
@@ -279,7 +280,7 @@ func (dba *Orm) _valueFromStruct(bindResult reflect.Value, field string) (v inte
 
 // Chunk : 分块处理数据,当要处理很多数据的时候, 我不需要知道具体是多少数据, 我只需要每次取limit条数据,
 // 然后不断的增加offset去取更多数据, 从而达到分块处理更多数据的目的
-//TODO 后续增加 gorotine 支持, 提高批量数据处理效率, 预计需要增加获取更多链接的支持
+// TODO 后续增加 gorotine 支持, 提高批量数据处理效率, 预计需要增加获取更多链接的支持
 func (dba *Orm) Chunk(limit int, callback func([]Data) error) (err error) {
 	var page = 1
 	var tabname = dba.GetISession().GetIBinder().GetBindName()
@@ -382,27 +383,28 @@ func (dba *Orm) Loop(limit int, callback func([]Data) error) (err error) {
 // @param limit 每页展示数量
 // @param current_page 当前第几页, 从1开始
 // 以下是laravel的Paginate返回示例
-//{
-//	"total": 50,
-//	"per_page": 15,
-//	"current_page": 1,
-//	"lastPage": 4,
-//	"first_page_url": "http://laravel.app?page=1",
-//	"lastPage_url": "http://laravel.app?page=4",
-//	"nextPage_url": "http://laravel.app?page=2",
-//	"prevPage_url": null,
-//	"path": "http://laravel.app",
-//	"from": 1,
-//	"to": 15,
-//	"data":[
-//		{
-//		// Result Object
-//		},
-//		{
-//		// Result Object
-//		}
-//	]
-//}
+//
+//	{
+//		"total": 50,
+//		"per_page": 15,
+//		"current_page": 1,
+//		"lastPage": 4,
+//		"first_page_url": "http://laravel.app?page=1",
+//		"lastPage_url": "http://laravel.app?page=4",
+//		"nextPage_url": "http://laravel.app?page=2",
+//		"prevPage_url": null,
+//		"path": "http://laravel.app",
+//		"from": 1,
+//		"to": 15,
+//		"data":[
+//			{
+//			// Result Object
+//			},
+//			{
+//			// Result Object
+//			}
+//		]
+//	}
 func (dba *Orm) Paginate(page ...int) (res Data, err error) {
 	if len(page) > 0 {
 		dba.Page(page[0])
@@ -460,27 +462,28 @@ func (dba *Orm) Paginate(page ...int) (res Data, err error) {
 // @param limit 每页展示数量
 // @param current_page 当前第几页, 从1开始
 // 以下是laravel的Paginate返回示例
-//{
-//	"total": 50,
-//	"per_page": 15,
-//	"current_page": 1,
-//	"lastPage": 4,
-//	"first_page_url": "http://laravel.app?page=1",
-//	"lastPage_url": "http://laravel.app?page=4",
-//	"nextPage_url": "http://laravel.app?page=2",
-//	"prevPage_url": null,
-//	"path": "http://laravel.app",
-//	"from": 1,
-//	"to": 15,
-//	"data":[
-//		{
-//		// Result Object
-//		},
-//		{
-//		// Result Object
-//		}
-//	]
-//}
+//
+//	{
+//		"total": 50,
+//		"per_page": 15,
+//		"current_page": 1,
+//		"lastPage": 4,
+//		"first_page_url": "http://laravel.app?page=1",
+//		"lastPage_url": "http://laravel.app?page=4",
+//		"nextPage_url": "http://laravel.app?page=2",
+//		"prevPage_url": null,
+//		"path": "http://laravel.app",
+//		"from": 1,
+//		"to": 15,
+//		"data":[
+//			{
+//			// Result Object
+//			},
+//			{
+//			// Result Object
+//			}
+//		]
+//	}
 func (dba *Orm) Paginator(page ...int) (res Paginate, err error) {
 	if len(page) > 0 {
 		dba.Page(page[0])
@@ -505,8 +508,23 @@ func (dba *Orm) Paginator(page ...int) (res Paginate, err error) {
 	dba.GetISession().GetIBinder().SetBindName(tabname)
 	dba.GetISession().GetIBinder().SetBindPrefix(prefix)
 	dba.where = where
-	count, err := dba.Count()
+
+	dba.fields = []string{"count(distinct " + dba.group + ") as count"}
+
+	// 构建sql
+	sqls, args, err_sql := dba.BuildSql()
+	if err != nil {
+		err = err_sql
+		return
+	}
+	count := int64(0)
+	total_number, err := dba.Query(`SELECT count(0) as count from(`+sqls+`) as counts`, args...)
+	if len(total_number) < 1 {
+		return
+	}
+	count = t.New(total_number[0]["count"]).Int64()
 	//fmt.Println(dba.LastSql())
+
 	if err != nil {
 		return
 	}
