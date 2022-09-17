@@ -12,7 +12,7 @@
 
 ~~~
  ██████╗  ██████╗ ██████╗  ██████╗ ███████╗███████╗    ██████╗ ██████╗  ██████╗ 
-██╔════╝ ██╔═══██╗██╔══██╗██╔═══██╗██╔════╝██╔════╝    ██╔══██╗██╔══██╗██╔═══██╗
+██╔════╝ ██╔═══██╗██╔══██╗██╔═══██╗██╔════╝██[]()╔════╝    ██╔══██╗██╔══██╗██╔═══██╗
 ██║  ███╗██║   ██║██████╔╝██║   ██║███████╗█████╗█████╗██████╔╝██████╔╝██║   ██║
 ██║   ██║██║   ██║██╔══██╗██║   ██║╚════██║██╔══╝╚════╝██╔═══╝ ██╔══██╗██║   ██║
 ╚██████╔╝╚██████╔╝██║  ██║╚██████╔╝███████║███████╗    ██║     ██║  ██║╚██████╔╝
@@ -39,7 +39,7 @@
 ## Bug Fix
 
 - Dirty Read under concurrency circumstances(this will be only and easily triggered by using *db mode)
-- Paginate fixed, this function finally come back to life, new "Paginator" function make it much more easier to use
+- Paginate fix[]()ed, this function finally come back to life, new "Paginator" function make it much more easier to use
 
 ## Docs and Demos（Wiki）
 
