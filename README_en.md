@@ -29,6 +29,9 @@
 - 100% compatible with original function
 - Dealing PR & Bug fix much more sooner
 - All function has been tested and verified by commercial projects
+- Support complexity and/or sql in Where/OrWhere function
+- Paginator is now able to return the correct TOTAL number
+- Add CountGroup to return correct row count from sql sentence
 
 ## Purpose of this project
 
@@ -40,6 +43,7 @@
 
 - Dirty Read under concurrency circumstances(this will be only and easily triggered by using *db mode)
 - Paginate fixed, this function finally come back to life, new "Paginator" function make it much more easier to use
+- Fix the row_count(Total in Paginator mode) when using GroupBy function
 
 ## Docs and Demos（Wiki）
 
