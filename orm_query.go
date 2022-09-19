@@ -526,7 +526,11 @@ func (dba *Orm) Paginator(page ...int) (res Paginate, err error) {
 	dba.GetISession().GetIBinder().SetBindPrefix(prefix)
 	dba.where = where
 
-	dba.fields = []string{"count(distinct " + dba.group + ") as count"}
+	if dba.group != "" {
+		dba.fields = []string{"count(distinct " + dba.group + ") as count"}
+	} else {
+		dba.fields = []string{"count(*) as count"}
+	}
 
 	// 构建sql
 	sqls, args, err_sql := dba.BuildSql()
@@ -535,6 +539,7 @@ func (dba *Orm) Paginator(page ...int) (res Paginate, err error) {
 		return
 	}
 	count := int64(0)
+	//fmt.Println(sqls)
 	total_number, err := dba.Query(`SELECT count(0) as count from(`+sqls+`) as counts`, args...)
 	if len(total_number) < 1 {
 		return
