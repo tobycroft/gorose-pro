@@ -526,30 +526,34 @@ func (dba *Orm) Paginator(page ...int) (res Paginate, err error) {
 	dba.GetISession().GetIBinder().SetBindPrefix(prefix)
 	dba.where = where
 
+	count := int64(0)
+
 	if dba.group != "" {
 		dba.fields = []string{"count(distinct " + dba.group + ") as count"}
+		// 构建sql
+		sqls, args, err_sql := dba.BuildSql()
+		if err != nil {
+			err = err_sql
+			return
+		}
+		//fmt.Println(sqls)
+		total_number, err := dba.Query(`SELECT count(0) as count from(`+sqls+`) as counts`, args...)
+		if err != nil {
+			return
+		}
+		if len(total_number) < 1 {
+			return
+		}
+		count = t.New(total_number[0]["count"]).Int64()
 	} else {
-		dba.fields = []string{"count(*) as count"}
+		count, err = dba.Count()
+		if err != nil {
+			return
+		}
 	}
 
-	// 构建sql
-	sqls, args, err_sql := dba.BuildSql()
-	if err != nil {
-		err = err_sql
-		return
-	}
-	count := int64(0)
-	//fmt.Println(sqls)
-	total_number, err := dba.Query(`SELECT count(0) as count from(`+sqls+`) as counts`, args...)
-	if len(total_number) < 1 {
-		return
-	}
-	count = t.New(total_number[0]["count"]).Int64()
 	//fmt.Println(dba.LastSql())
 
-	if err != nil {
-		return
-	}
 	var lastPage = int(math.Ceil(float64(count) / float64(limit)))
 	var nextPage = currentPage + 1
 	var prevPage = currentPage - 1
