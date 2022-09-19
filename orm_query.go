@@ -71,26 +71,19 @@ func (dba *Orm) Count(args ...string) (int64, error) {
 
 // CountNested : select count (select count.....)
 func (dba *Orm) CountGroup(count_fileds ...string) (count int64, err error) {
-	if dba.group != "" {
-		dba.fields = []string{"count(distinct " + dba.group + ") as count"}
-		// 构建sql
-		sqls, args, err_sql := dba.BuildSql()
-		if err != nil {
-			err = err_sql
-			return
-		}
-		//fmt.Println(sqls)
-		total_number, err := dba.Query(`SELECT count(0) as count from(`+sqls+`) as counts`, args...)
-		if err != nil {
-			return
-		}
-		if len(total_number) < 1 {
-			return
-		}
-		return t.New(total_number[0]["count"]).Int64(), nil
-	} else {
-		return dba.Count()
+	dba.fields = []string{"count(distinct " + dba.group + ") as count"}
+
+	// 构建sql
+	sqls, args, err_sql := dba.BuildSql()
+	if err != nil {
+		err = err_sql
+		return
 	}
+	total_number, err := dba.Query(`SELECT count(0) as count from(`+sqls+`) as counts`, args...)
+	if err != nil {
+		return 0, err
+	}
+	return t.New(total_number[0]["count"]).Int64(), err
 }
 
 // Sum : select sum field
@@ -544,8 +537,9 @@ func (dba *Orm) Paginator(page ...int) (res Paginate, err error) {
 			return
 		}
 		//fmt.Println(sqls)
-		total_number, err := dba.Query(`SELECT count(0) as count from(`+sqls+`) as counts`, args...)
-		if err != nil {
+		total_number, err1 := dba.Query(`SELECT count(0) as count from(`+sqls+`) as counts`, args...)
+		if err1 != nil {
+			err = err1
 			return
 		}
 		if len(total_number) < 1 {
