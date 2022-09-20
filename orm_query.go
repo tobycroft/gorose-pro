@@ -533,9 +533,7 @@ func (dba *Orm) Paginator(page ...int) (res Paginate, err error) {
 	dba.GetISession().GetIBinder().SetBindPrefix(prefix)
 	dba.where = where
 
-	count := int64(0)
-
-	count, err = dba.Counts()
+	count, err := dba.Counts()
 
 	//fmt.Println(dba.LastSql())
 
