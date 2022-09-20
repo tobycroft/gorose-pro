@@ -522,9 +522,10 @@ func (dba *Orm) Paginator(page ...int) (res Paginate, err error) {
 	prefix := dba.GetISession().GetIBinder().GetBindPrefix()
 	where := dba.where
 	fields := dba.fields
-	resData, err := dba.Get()
+	resData, err1 := dba.Get()
 	//fmt.Println(dba.LastSql())
 	if err != nil {
+		err = err1
 		return
 	}
 	dba.offset = 0
@@ -533,8 +534,11 @@ func (dba *Orm) Paginator(page ...int) (res Paginate, err error) {
 	dba.GetISession().GetIBinder().SetBindPrefix(prefix)
 	dba.where = where
 
-	count, err := dba.Counts()
-
+	count, err2 := dba.Counts()
+	if err != nil {
+		err = err2
+		return
+	}
 	//fmt.Println(dba.LastSql())
 
 	var lastPage = int(math.Ceil(float64(count) / float64(limit)))
