@@ -524,7 +524,7 @@ func (dba *Orm) Paginator(page ...int) (res Paginate, err error) {
 	fields := dba.fields
 	resData, err1 := dba.Get()
 	//fmt.Println(dba.LastSql())
-	if err != nil {
+	if err1 != nil {
 		err = err1
 		return
 	}
@@ -535,7 +535,7 @@ func (dba *Orm) Paginator(page ...int) (res Paginate, err error) {
 	dba.where = where
 
 	count, err2 := dba.Counts()
-	if err != nil {
+	if err2 != nil {
 		err = err2
 		return
 	}
