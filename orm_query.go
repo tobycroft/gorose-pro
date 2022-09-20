@@ -69,21 +69,26 @@ func (dba *Orm) Count(args ...string) (int64, error) {
 	return t.New(count).Int64(), err
 }
 
-// CountNested : select count (select count.....)
-func (dba *Orm) CountGroup(count_fileds ...string) (count int64, err error) {
-	dba.fields = []string{"count(distinct " + dba.group + ") as count"}
-
-	// 构建sql
-	sqls, args, err_sql := dba.BuildSql()
-	if err != nil {
-		err = err_sql
-		return
+// Counts is a Nested-Count function in order to solve the wrong number output when using count and groupBy in the same time : select count (select count.....)
+func (dba *Orm) Counts(count_fileds ...string) (int64, error) {
+	if dba.group == "" {
+		return dba.Count(count_fileds...)
+	} else {
+		dba.fields = []string{"count(DISTINCT " + dba.group + ") as count"}
+		// 构建sql
+		sqls, args, err := dba.BuildSql()
+		if err != nil {
+			return 0, err
+		}
+		total_number, err := dba.Query(`SELECT count(*) as count from(`+sqls+`) as counts`, args...)
+		if err != nil {
+			return 0, err
+		}
+		if len(total_number) < 1 {
+			return 0, err
+		}
+		return t.New(total_number[0]["count"]).Int64(), err
 	}
-	total_number, err := dba.Query(`SELECT count(0) as count from(`+sqls+`) as counts`, args...)
-	if err != nil {
-		return 0, err
-	}
-	return t.New(total_number[0]["count"]).Int64(), err
 }
 
 // Sum : select sum field
@@ -516,42 +521,21 @@ func (dba *Orm) Paginator(page ...int) (res Paginate, err error) {
 	tabname := dba.GetISession().GetIBinder().GetBindName()
 	prefix := dba.GetISession().GetIBinder().GetBindPrefix()
 	where := dba.where
+	fields := dba.fields
 	resData, err := dba.Get()
 	//fmt.Println(dba.LastSql())
 	if err != nil {
 		return
 	}
 	dba.offset = 0
+	dba.fields = fields
 	dba.GetISession().GetIBinder().SetBindName(tabname)
 	dba.GetISession().GetIBinder().SetBindPrefix(prefix)
 	dba.where = where
 
 	count := int64(0)
 
-	if dba.group != "" {
-		dba.fields = []string{"count(distinct " + dba.group + ") as count"}
-		// 构建sql
-		sqls, args, err_sql := dba.BuildSql()
-		if err != nil {
-			err = err_sql
-			return
-		}
-		//fmt.Println(sqls)
-		total_number, err1 := dba.Query(`SELECT count(0) as count from(`+sqls+`) as counts`, args...)
-		if err1 != nil {
-			err = err1
-			return
-		}
-		if len(total_number) < 1 {
-			return
-		}
-		count = t.New(total_number[0]["count"]).Int64()
-	} else {
-		count, err = dba.Count()
-		if err != nil {
-			return
-		}
-	}
+	count, err = dba.Counts()
 
 	//fmt.Println(dba.LastSql())
 

@@ -17,6 +17,7 @@ type IOrmQuery interface {
 	Pluck(field string, fieldKey ...string) (v interface{}, err error)
 	// 查询构建器还提供了多个聚合方法，如count, max, min, avg 和 sum，你可以在构造查询之后调用这些方法：
 	Count(args ...string) (int64, error)
+	Counts(args ...string) (int64, error)
 	Sum(sum string) (interface{}, error)
 	Avg(avg string) (interface{}, error)
 	Max(max string) (interface{}, error)
