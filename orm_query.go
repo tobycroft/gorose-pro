@@ -74,6 +74,7 @@ func (dba *Orm) Counts(count_fileds ...string) (int64, error) {
 	if dba.group == "" {
 		return dba.Count(count_fileds...)
 	} else {
+		dba.limit = 0
 		dba.fields = []string{"count(DISTINCT " + dba.group + ") as count"}
 		// 构建sql
 		sqls, args, err := dba.BuildSql()
@@ -84,6 +85,7 @@ func (dba *Orm) Counts(count_fileds ...string) (int64, error) {
 		if err != nil {
 			return 0, err
 		}
+		//fmt.Println(dba.LastSql())
 		if len(total_number) < 1 {
 			return 0, err
 		}
@@ -533,7 +535,6 @@ func (dba *Orm) Paginator(page ...int) (res Paginate, err error) {
 	dba.GetISession().GetIBinder().SetBindName(tabname)
 	dba.GetISession().GetIBinder().SetBindPrefix(prefix)
 	dba.where = where
-
 	count, err2 := dba.Counts()
 	if err2 != nil {
 		err = err2
