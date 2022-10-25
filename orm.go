@@ -175,7 +175,7 @@ func (dba *Orm) Where(args ...interface{}) IOrm {
 	return dba
 }
 
-// Where : query or execute where condition, the relation is and
+// WhereOr : query or execute where condition, the relation is or
 func (dba *Orm) WhereOr(args ...interface{}) IOrm {
 	if len(args) == 0 ||
 		t.New(args[0]).Bool() == false {
