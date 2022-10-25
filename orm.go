@@ -176,17 +176,11 @@ func (dba *Orm) Where(args ...interface{}) IOrm {
 }
 
 // Where : query or execute where condition, the relation is and
-func (dba *Orm) WhereOr(args interface{}, andor bool) IOrm {
+func (dba *Orm) WhereOr(args ...interface{}) IOrm {
 	// 如果只传入一个参数, 则可能是字符串、一维对象、二维数组
 	// 重新组合为长度为3的数组, 第一项为关系(and/or), 第二项为具体传入的参数 []interface{}
-	if andor {
-		w := []interface{}{"andor", args}
-		dba.where = append(dba.where, w)
-	} else {
-		w := []interface{}{"orand", args}
-		dba.where = append(dba.where, w)
-	}
-
+	w := []interface{}{"andor", args}
+	dba.where = append(dba.where, w)
 	return dba
 }
 

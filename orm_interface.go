@@ -33,7 +33,7 @@ type IOrm interface {
 	// `Where`,`OrWhere`,`WhereNull / WhereNotNull`,`WhereIn / WhereNotIn / OrWhereIn / OrWhereNotIn`,`WhereBetween / WhereBetwee / OrWhereBetween / OrWhereNotBetween`
 	Where(args ...interface{}) IOrm
 	OrWhere(args ...interface{}) IOrm
-	WhereOr(args interface{}, andor bool) IOrm
+	WhereOr(args ...interface{}) IOrm
 	WhereNull(arg string) IOrm
 	OrWhereNull(arg string) IOrm
 	WhereNotNull(arg string) IOrm
