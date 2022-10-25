@@ -494,7 +494,19 @@ func (b *BuilderDefault) parseWhere(ormApi IOrm) (string, error) {
 						for _, arr := range whereArrs {
 							whereArr = append(whereArr, " ("+strings.Join(arr, " "+"and"+" ")+")")
 						}
-						where = append(where, condition+" ("+strings.Join(whereArr, " "+condition+" ")+")")
+						switch condition {
+						case "andor":
+							where = append(where, "and ("+strings.Join(whereArr, " or ")+")")
+							break
+
+						case "orand":
+							where = append(where, "or ("+strings.Join(whereArr, " and ")+")")
+							break
+
+						default:
+							where = append(where, condition+" ("+strings.Join(whereArr, " "+condition+" ")+")")
+							break
+						}
 					}
 					break
 
