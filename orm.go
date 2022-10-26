@@ -167,6 +167,7 @@ func (dba *Orm) Where(args ...interface{}) IOrm {
 		return dba
 	}
 	// 如果只传入一个参数, 则可能是字符串、一维对象、二维数组
+	// 支持[]any{map[string]any}格式，格式，详情请参考文档，内联方式为 ...SQL... and (* and *) 模式
 	// 重新组合为长度为3的数组, 第一项为关系(and/or), 第二项为具体传入的参数 []interface{}
 	w := []interface{}{"and", args}
 
@@ -175,16 +176,25 @@ func (dba *Orm) Where(args ...interface{}) IOrm {
 	return dba
 }
 
-// Where : query or execute where condition, the relation is and
+// WhereOr : based on Where using andor as condition
 func (dba *Orm) WhereOr(args ...interface{}) IOrm {
-	// 如果只传入一个参数, 则可能是字符串、一维对象、二维数组
-	// 重新组合为长度为3的数组, 第一项为关系(and/or), 第二项为具体传入的参数 []interface{}
+	// 在Where的基础上加入了and (sub_where1 or sub_where2)来解决子次序需要使用or连接的问题
+	// 支持[]any{map[string]any}格式，格式，详情请参考文档，内联方式为 ...SQL... and (* or *) 模式
 	w := []interface{}{"andor", args}
 	dba.where = append(dba.where, w)
 	return dba
 }
 
-// Where : query or execute where condition, the relation is and
+// WhereOrAnd : based on Where using orand as condition
+func (dba *Orm) WhereOrAnd(args ...interface{}) IOrm {
+	// 在Where的基础上加入了or (sub_where1 and sub_where2)来解决子次序需要使用or连接的问题
+	// 使用[]any{map[string]any}格式，格式，详情请参考文档，内联方式为 ...SQL... or (* and *) 模式
+	w := []interface{}{"orand", args}
+	dba.where = append(dba.where, w)
+	return dba
+}
+
+// OrWhere : query or execute where condition, the relation is and
 func (dba *Orm) OrWhere(args ...interface{}) IOrm {
 	// 如果只传入一个参数, 则可能是字符串、一维对象、二维数组
 

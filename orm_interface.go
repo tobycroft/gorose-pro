@@ -34,6 +34,7 @@ type IOrm interface {
 	Where(args ...interface{}) IOrm
 	OrWhere(args ...interface{}) IOrm
 	WhereOr(args ...interface{}) IOrm
+	WhereOrAnd(args ...interface{}) IOrm
 	WhereNull(arg string) IOrm
 	OrWhereNull(arg string) IOrm
 	WhereNotNull(arg string) IOrm
