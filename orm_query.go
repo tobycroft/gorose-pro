@@ -74,6 +74,9 @@ func (dba *Orm) Counts(count_fileds ...string) (int64, error) {
 	if dba.group == "" {
 		return dba.Count(count_fileds...)
 	} else {
+		//temporary remove order in case of the renamed order not found which cause error sql
+		order := dba.order
+		dba.order = ""
 		dba.limit = 0
 		dba.fields = []string{"count(DISTINCT " + dba.group + ") as count"}
 		// 构建sql
@@ -81,6 +84,7 @@ func (dba *Orm) Counts(count_fileds ...string) (int64, error) {
 		if err != nil {
 			return 0, err
 		}
+		dba.order = order
 		total_number, err := dba.Query(`SELECT count(*) as count from(`+sqls+`) as counts`, args...)
 		if err != nil {
 			return 0, err
