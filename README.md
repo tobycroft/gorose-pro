@@ -34,6 +34,7 @@
 - 支持复杂Where/OrWhere条件下的and/or条件查询（复杂环境下极好用！）
 - 更加好用的Paginator行数，高效不出错
 - CountGroup使用GroupBy的时候返回正确的行数
+- subQuery安全的子查询，链式操作无需编写语句
 
 ## 本项目目的
 
@@ -65,7 +66,7 @@
 - 嵌套事务
     - [支付环境下复杂的嵌套事务实例](https://github.com/tobycroft/gorose-pro/wiki/支付环境下复杂的嵌套事务)
 - 子查询subQuery
-    - [防注入子查询](https://github.com/tobycroft/gorose-pro/wiki/subQuery安全子查询)
+    - [subSql防注入子查询](https://github.com/tobycroft/gorose-pro/wiki/subQuery安全子查询)
 
 ## 简介
 
