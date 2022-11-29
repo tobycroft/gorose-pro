@@ -10,7 +10,7 @@ type IOrm interface {
 	Close()
 	BuildSql(operType ...string) (string, []interface{}, error)
 	Table(tab interface{}) IOrm
-	SubQuery(sql string, args []interface{}) IOrm
+	SubQuery(sql, alias string, args []interface{}) IOrm
 	// fields=select
 	Fields(fields ...string) IOrm
 	AddFields(fields ...string) IOrm

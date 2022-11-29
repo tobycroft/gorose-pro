@@ -90,8 +90,8 @@ func (dba *Orm) Table(tab interface{}) IOrm {
 }
 
 // SubQuery : subquery sentence, args is the bind values
-func (dba *Orm) SubQuery(sql string, args []interface{}) IOrm {
-	dba.GetISession().Bind("(" + sql + ")")
+func (dba *Orm) SubQuery(sql, alias string, args []interface{}) IOrm {
+	dba.GetISession().Bind("(" + sql + ") " + alias)
 	dba.bindValues = append(dba.bindValues, args...)
 	//dba.table = dba.GetISession().GetTableName()
 	return dba
