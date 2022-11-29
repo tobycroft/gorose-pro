@@ -89,6 +89,14 @@ func (dba *Orm) Table(tab interface{}) IOrm {
 	return dba
 }
 
+// SubQuery : subquery sentence, args is the bind values
+func (dba *Orm) SubQuery(sql string, args []interface{}) IOrm {
+	dba.GetISession().Bind("(" + sql + ")")
+	dba.bindValues = append(dba.bindValues, args...)
+	//dba.table = dba.GetISession().GetTableName()
+	return dba
+}
+
 // Fields : select fields
 func (dba *Orm) Fields(fields ...string) IOrm {
 	dba.fields = fields
