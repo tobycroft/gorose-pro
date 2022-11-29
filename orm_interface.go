@@ -58,6 +58,7 @@ type IOrm interface {
 	//GetIBinder() IBinder
 	SetBindValues(v interface{})
 	GetBindValues() []interface{}
+	IsSubQuery() bool
 	ClearBindValues()
 	Transaction(closers ...func(db IOrm) error) (err error)
 	Reset() IOrm

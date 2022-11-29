@@ -13,6 +13,7 @@ type Orm struct {
 	*OrmApi
 	driver     string
 	bindValues []interface{}
+	subQuery   bool
 }
 
 var _ IOrm = (*Orm)(nil)
@@ -93,8 +94,15 @@ func (dba *Orm) Table(tab interface{}) IOrm {
 func (dba *Orm) SubQuery(sql, alias string, args []interface{}) IOrm {
 	dba.GetISession().Bind("(" + sql + ") " + alias)
 	dba.bindValues = append(dba.bindValues, args...)
+	dba.subQuery = true
+	//fmt.Println(dba.bindValues)
 	//dba.table = dba.GetISession().GetTableName()
 	return dba
+}
+
+// IsSubQuery : iscurrentSubquery
+func (dba *Orm) IsSubQuery() bool {
+	return dba.subQuery
 }
 
 // Fields : select fields
@@ -413,7 +421,9 @@ func (dba *Orm) BuildSql(operType ...string) (a string, b []interface{}, err err
 		//		dba.Limit(1)
 		//	}
 		//}
+		//fmt.Println("ssss", dba.bindValues)
 		a, b, err = NewBuilder(dba.GetISession().GetIEngin().GetDriver()).BuildQuery(dba)
+		//fmt.Println("aa", a, b, err)
 		if dba.GetISession().GetTransaction() {
 			a = a + dba.GetPessimisticLock()
 		}

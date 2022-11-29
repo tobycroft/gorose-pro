@@ -21,6 +21,7 @@ type BuilderDefault struct {
 	driver      string
 	bindValues  []interface{}
 	current     IBuilder
+	subQuery    bool
 }
 
 // NewBuilderDefault 初始化
@@ -77,22 +78,31 @@ func (b *BuilderDefault) GetPlaceholder() (phstr string) {
 // BuildQuery 构造query
 func (b *BuilderDefault) BuildQuery() (sqlStr string, args []interface{}, err error) {
 	//b.IOrm = o
+	//subquery
+	if b.IOrm.IsSubQuery() {
+		b.bindValues = b.IOrm.GetBindValues()
+	}
+	//fmt.Println("kggsvv", b.IOrm.GetBindValues())
+	//fmt.Println("kggs1", args)
 	join, err := b.BuildJoin()
 	if err != nil {
 		b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
 		return
 	}
+	//fmt.Println("kggs2", args)
 	where, err := b.BuildWhere()
 	if err != nil {
 		b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
 		return
 	}
+	//fmt.Println("kggs3", args)
 	sqlStr = fmt.Sprintf("SELECT %s%s FROM %s%s%s%s%s%s%s%s",
 		b.BuildDistinct(), b.BuildFields(), b.BuildTable(), join, where,
 		b.BuildGroup(), b.BuildHaving(), b.BuildOrder(), b.BuildLimit(), b.BuildOffset())
 
 	//args = b.bindParams
 	args = b.GetBindValues()
+	//fmt.Println("kggs4", args)
 	return
 }
 
