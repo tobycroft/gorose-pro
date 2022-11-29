@@ -64,7 +64,7 @@
     - [Query方法使用原生语句查询](https://github.com/tobycroft/gorose-pro/wiki/Query方法)
 - 嵌套事务
     - [支付环境下复杂的嵌套事务实例](https://github.com/tobycroft/gorose-pro/wiki/支付环境下复杂的嵌套事务)
-- 子查询
+- 子查询subQuery
     - [防注入子查询](https://github.com/tobycroft/gorose-pro/wiki/subQuery安全子查询)
 
 ## 简介
