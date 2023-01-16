@@ -1,7 +1,6 @@
 package gorose
 
 import (
-	"fmt"
 	//"fmt"
 	"github.com/gohouse/t"
 	"math"
@@ -91,7 +90,7 @@ func (dba *Orm) Counts(count_fileds ...string) (int64, error) {
 		if err != nil {
 			return 0, err
 		}
-		fmt.Println(dba.LastSql())
+		//fmt.Println(dba.LastSql())
 		if len(total_number) < 1 {
 			return 0, err
 		}
