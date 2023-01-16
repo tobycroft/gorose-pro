@@ -1,6 +1,7 @@
 package gorose
 
 import (
+	"fmt"
 	//"fmt"
 	"github.com/gohouse/t"
 	"math"
@@ -78,9 +79,10 @@ func (dba *Orm) Counts(count_fileds ...string) (int64, error) {
 		order := dba.order
 		dba.order = ""
 		dba.limit = 0
-		dba.fields = []string{"count(DISTINCT " + dba.group + ") as count"}
+		//dba.fields = []string{"count(DISTINCT " + dba.group + ") as count"}
 		// 构建sql
 		sqls, args, err := dba.BuildSql()
+		//fmt.Println(sqls)
 		if err != nil {
 			return 0, err
 		}
@@ -89,7 +91,7 @@ func (dba *Orm) Counts(count_fileds ...string) (int64, error) {
 		if err != nil {
 			return 0, err
 		}
-		//fmt.Println(dba.LastSql())
+		fmt.Println(dba.LastSql())
 		if len(total_number) < 1 {
 			return 0, err
 		}
