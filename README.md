@@ -19,7 +19,7 @@
  ╚═════╝  ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚══════╝    ╚═╝     ╚═╝  ╚═╝ ╚═════╝ 
 ~~~
 
-## English[增加Insert](./README_en.md)
+## EnglishDOC[English Document](./README_en.md)
 
 ## 原版和Pro版本区别（原版没有的功能）+（猜你关心）
 
