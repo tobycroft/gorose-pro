@@ -49,19 +49,20 @@
 ## Docs and Demos（Wiki）
 
 - CUD
-    - [Insert](./wiki/Insert新增数据)
-    - [Delete](./wiki/Delete删除数据)
-    - [Update](./wiki/Update方法)
+    - [Insert](../../wiki/Insert新增数据)
+    - [Delete](../../wiki/Delete删除数据)
+    - [Update](../../wiki/Update方法)
 - R as object(Map[string]interface{})
-    - [Find/First](./wiki/Find-First查询返回Obj对象方法)
+    - [Find/First](../../wiki/Find-First查询返回Obj对象方法)
 - R in array or by join（[]Map[string]interface{}
-    - [Get/Select](./wiki/Get-Select方法)
-    - [Join](./wiki/Join-Select方法)
-    - [Paginator](./wiki/Paginator复杂的子查询分页构建)
+    - [Get/Select](../../wiki/Get-Select方法)
+    - [Join](../../wiki/Join-Select方法)
+    - [Paginator](../../wiki/Paginator复杂的子查询分页构建)
 - Raw SQL sentence mode
-    - [Query](./wiki/Query方法)
+    - [Query](../../wiki/Query方法)
 - Nested Transaction(only support in GorosePro)
-    - [Demos](./wiki/支付环境下复杂的嵌套事务)
+    - [Demos](../../wiki/支付环境下复杂的嵌套事务)
+
 
 ## Introduction
 

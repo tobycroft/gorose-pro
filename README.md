@@ -19,8 +19,13 @@
  ╚═════╝  ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚══════╝    ╚═╝     ╚═╝  ╚═╝ ╚═════╝ 
 ~~~
 
+## EnglishDOC
+
+[English Document](./README_en.md)
+
 ## 原版和Pro版本区别（原版没有的功能）+（猜你关心）
 
+- 100%兼容原版
 - 本项目已经包含所有Gorose的更新以及Bug修复以及Issues中提到但未修复的问题
 - 直觉式编程，更加适合ThinkPHP/Laravel开发人员
 - 支持事务嵌套
@@ -28,7 +33,6 @@
 - 跟深度支持MySQL和MariaDB
 - 文档超详细，你可以在我的文档中找到99%
 - 采用"直觉编程"优化，即使没用过也能更快上手
-- 100%兼容原版
 - 更快的PR/BUG响应+修复速度
 - 所有的更新/Bug修复完全来自于当前正在编写的商业项目，不可能出现更新后不管的情况
 - 支持复杂Where/OrWhere条件下的and/or条件查询（复杂环境下极好用！）
@@ -53,21 +57,23 @@
 ## 实例文档（Wiki）
 
 - 增删改
-    - [增加Insert](https://github.com/tobycroft/gorose-pro/wiki/Insert新增数据)
-    - [删除Delete](https://github.com/tobycroft/gorose-pro/wiki/Delete删除数据)
-    - [更新Update](https://github.com/tobycroft/gorose-pro/wiki/Update方法)
+    - [增加Insert](../../wiki/Insert新增数据)
+    - [删除Delete](../../wiki/Delete删除数据)
+    - [更新Update](../../wiki/Update方法)
 - 单条查询（对象）(Map[string]interface{})
-    - [Find/First返回对象](https://github.com/tobycroft/gorose-pro/wiki/Find-First查询返回Obj对象方法)
+    - [Find/First返回对象](../../wiki/Find-First查询返回Obj对象方法)
 - 多条/联合查询（[]Map[string]interface{}
-    - [Get/Select返回数组](https://github.com/tobycroft/gorose-pro/wiki/Get-Select方法)
-    - [Join联合查询](https://github.com/tobycroft/gorose-pro/wiki/Join-Select方法)
-    - [Paginator复杂的子查询分页构建](https://github.com/tobycroft/gorose-pro/wiki/Paginator复杂的子查询分页构建)
+    - [Get/Select返回数组](../../wiki/Get-Select方法)
+    - [Join联合查询](../../wiki/Join-Select方法)
+    - [Paginator复杂的子查询分页构建](../../wiki/Paginator复杂的子查询分页构建)
 - Query方法
-    - [Query方法使用原生语句查询](https://github.com/tobycroft/gorose-pro/wiki/Query方法)
+    - [Query方法使用原生语句查询](../../wiki/Query方法)
 - 嵌套事务
-    - [支付环境下复杂的嵌套事务实例](https://github.com/tobycroft/gorose-pro/wiki/支付环境下复杂的嵌套事务)
+    - [支付环境下复杂的嵌套事务实例](../../wiki/支付环境下复杂的嵌套事务)
 - 子查询subQuery
-    - [subSql防注入子查询](https://github.com/tobycroft/gorose-pro/wiki/subQuery安全子查询)
+    - [subSql防注入子查询](../../wiki/subQuery安全子查询)
+- 安全性能
+    - [Paginator-Performance-by-ChatGPT](../../wiki/Paginator分页查询的性能问题-ChatGPT )
 
 ## 简介
 
