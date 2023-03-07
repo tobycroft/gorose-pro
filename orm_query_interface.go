@@ -12,6 +12,7 @@ type IOrmQuery interface {
 	Get() ([]Data, error)
 	// 如果你不需要完整的一行，可以使用 value 方法从结果中获取单个值，该方法会直接返回指定列的值：
 	Value(field string) (v interface{}, err error)
+	Column(field string) (v interface{}, err error)
 	// 如果想要获取包含单个列值的数组，可以使用 pluck 方法
 	// 还可以在返回数组中为列值指定自定义键（该自定义键必须是该表的其它字段列名，否则会报错）
 	Pluck(field string, fieldKey ...string) (v interface{}, err error)
