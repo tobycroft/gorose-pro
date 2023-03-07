@@ -274,6 +274,21 @@ func (dba *Orm) Value(field string) (v interface{}, err error) {
 	return
 }
 
+// Type is get a row of a field value
+func (dba *Orm) Column(field string) (v []interface{}, err error) {
+	res, err := dba.Get()
+	if err != nil {
+		return
+	}
+	v = []interface{}{}
+	for _, re := range res {
+		if vt, ok := re[field]; ok {
+			v = append(v, vt)
+		}
+	}
+	return
+}
+
 // Value_bak ...
 func (dba *Orm) Value_bak(field string) (v interface{}, err error) {
 	dba.Limit(1)
