@@ -278,7 +278,10 @@ func (dba *Orm) OrWhereNotRegexp(arg string, expstr string) IOrm {
 
 // WhereIn ...
 func (dba *Orm) WhereIn(needle string, hystack []interface{}) IOrm {
-	return dba.Where(needle, "IN", hystack)
+	if len(hystack) > 0 {
+		return dba.Where(needle, "IN", hystack)
+	}
+	return dba
 }
 
 // OrWhereIn ...
