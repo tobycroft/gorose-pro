@@ -6,6 +6,7 @@ import (
 	"math"
 	"reflect"
 	"strings"
+	"sync"
 )
 
 // Select : select one or more rows , relation limit set
@@ -560,6 +561,78 @@ func (dba *Orm) Paginator(page ...int) (res Paginate, err error) {
 		err = err2
 		return
 	}
+	//fmt.Println(dba.LastSql())
+
+	var lastPage = int(math.Ceil(float64(count) / float64(limit)))
+	var nextPage = currentPage + 1
+	var prevPage = currentPage - 1
+	// 获取结果
+
+	res = Paginate{
+		Total:        count,
+		PerPage:      limit,
+		CurrentPage:  currentPage,
+		LastPage:     lastPage,
+		FirstPageUrl: 1,
+		LastPageUrl:  lastPage,
+		NextPageUrl:  If(nextPage > lastPage, nil, nextPage),
+		PrevPageUrl:  If(prevPage < 1, nil, prevPage),
+		//"data":          dba.GetISession().GetBindAll(),
+		Data: resData,
+	}
+	return
+}
+
+// PaginatorWG this is a waitgroup Paginator function might be 30-60% faster than the original one
+func (dba *Orm) PaginatorWG(page ...int) (res Paginate, err error) {
+
+	if len(page) > 0 {
+		dba.Page(page[0])
+	}
+	var limit = dba.GetLimit()
+	if limit == 0 {
+		limit = 30
+	}
+	var offset = dba.GetOffset()
+	var currentPage = int(math.Ceil(float64(offset+1) / float64(limit)))
+	//dba.ResetUnion()
+	// 统计总量
+	tabname := dba.GetISession().GetIBinder().GetBindName()
+	prefix := dba.GetISession().GetIBinder().GetBindPrefix()
+	where := dba.where
+	fields := dba.fields
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	var resData []Data
+	var err1 error
+
+	dba.GetIBinder().SetBindType(OBJECT_STRING)
+	tabname2 := strings.TrimPrefix(tabname, prefix)
+	dba.ResetTable()
+	dba.Table(tabname2)
+	go func(db *Orm, data *[]Data, errs1 *error) {
+		*errs1 = db.Select()
+		*data = db.GetISession().GetBindAll()
+		wg.Done()
+	}(dba, &resData, &err1)
+
+	dba.offset = 0
+	dba.fields = fields
+	dba.GetISession().GetIBinder().SetBindName(tabname)
+	dba.GetISession().GetIBinder().SetBindPrefix(prefix)
+	dba.where = where
+
+	var count int64
+	var err2 error
+	go func(db *Orm, c *int64, errs2 *error) {
+		*c, *errs2 = db.Counts()
+		wg.Done()
+	}(dba, &count, &err2)
+
+	wg.Wait()
+
 	//fmt.Println(dba.LastSql())
 
 	var lastPage = int(math.Ceil(float64(count) / float64(limit)))
