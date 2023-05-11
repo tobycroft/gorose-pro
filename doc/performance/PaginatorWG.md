@@ -13,6 +13,10 @@
 
 ## 实际生产环境(数据库远距离通信)下提升了：28.9115646258503%
 
+以下内容仅程序处理时间
+
+Lantency only for the binary file
+
 | Old-Paginator | New-PaginatorWG |
 |---------------|-----------------|
 | 1144ms        | 971.641152ms    |          
