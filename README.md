@@ -38,7 +38,7 @@
 - (*Pro)CountGroup使用GroupBy的时候返回正确的行数
 - (*Pro)subQuery安全的子查询，链式操作无需编写语句
 - (*Pro)修复原版Paginator会出现函数不正确的BUG，高效不出错
-- (*Pro)PagiantorWG高性能多线程分页器[性能标书](./doc/performance/PaginatorWG.md)
+- (*Pro)PagiantorWG高性能多线程分页器[性能指示](./doc/performance/PaginatorWG.md)
 
 ## 本项目目的
 
