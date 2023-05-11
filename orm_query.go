@@ -609,18 +609,17 @@ func (dba *Orm) PaginatorWG(page ...int) (res Paginate, err error) {
 	var err1 error
 
 	dba.GetIBinder().SetBindType(OBJECT_STRING)
-	tabname2 := strings.TrimPrefix(tabname, prefix)
 	dba.ResetTable()
-	dba.Table(tabname2)
+	dba.Table(strings.TrimPrefix(tabname, prefix))
 	sqlStr, args, err := dba.BuildSql()
 	if err != nil {
 		return
 	}
-	go func(db *Orm, data *[]Data, errs1 *error, sqls string, ags []interface{}) {
+	go func(db *Orm, data *[]Data, errs1 *error, sqls *string, ags *[]interface{}) {
 		// 执行查询
-		*data, *errs1 = db.Query(sqls, ags...)
+		*data, *errs1 = db.Query(*sqls, *ags...)
 		wg.Done()
-	}(dba, &resData, &err1, sqlStr, args)
+	}(dba, &resData, &err1, &sqlStr, &args)
 
 	var count int64
 	var err2 error
