@@ -583,7 +583,7 @@ func (dba *Orm) Paginator(page ...int) (res Paginate, err error) {
 	return
 }
 
-// PaginatorWG this is a waitgroup Paginator function might be 30-60% faster than the original one
+// PaginatorWG this is a waitgroup Paginator function might be 20-50% faster than the original one,975ms->756ms
 func (dba *Orm) PaginatorWG(page ...int) (res Paginate, err error) {
 
 	if len(page) > 0 {
@@ -612,32 +612,41 @@ func (dba *Orm) PaginatorWG(page ...int) (res Paginate, err error) {
 	tabname2 := strings.TrimPrefix(tabname, prefix)
 	dba.ResetTable()
 	dba.Table(tabname2)
-	go func(db *Orm, data *[]Data, errs1 *error) {
-		sqlStr, args, temp_err := db.BuildSql()
-		if temp_err != nil {
-			errs1 = &temp_err
-			wg.Done()
-			return
-		}
+	sqlStr, args, err := dba.BuildSql()
+	if err != nil {
+		return
+	}
+	go func(db *Orm, data *[]Data, errs1 *error, sqls string, ags []interface{}) {
 		// 执行查询
-		*data, *errs1 = db.GetISession().Query(sqlStr, args...)
+		*data, *errs1 = db.Query(sqls, ags...)
 		wg.Done()
-	}(dba, &resData, &err1)
-
-	dba.offset = 0
-	dba.fields = fields
-	dba.GetISession().GetIBinder().SetBindName(tabname)
-	dba.GetISession().GetIBinder().SetBindPrefix(prefix)
-	dba.where = where
+	}(dba, &resData, &err1, sqlStr, args)
 
 	var count int64
 	var err2 error
 	go func(db *Orm, c *int64, errs2 *error) {
+		db.offset = 0
+		db.fields = fields
+		db.GetISession().GetIBinder().SetBindName(tabname)
+		db.GetISession().GetIBinder().SetBindPrefix(prefix)
+		db.where = where
 		*c, *errs2 = db.Counts()
+		if *errs2 != nil {
+			wg.Done()
+			return
+		}
 		wg.Done()
 	}(dba, &count, &err2)
 
 	wg.Wait()
+	if err1 != nil {
+		err = err1
+		return
+	}
+	if err2 != nil {
+		err = err2
+		return
+	}
 
 	//fmt.Println(dba.LastSql())
 

@@ -27,7 +27,7 @@ type IOrmQuery interface {
 	Paginate(page ...int) (res Data, err error)
 	Paginator(page ...int) (res Paginate, err error)
 
-	//PaginatorWG采用协程架构，在RDS环境中测试有30-60%的性能提高（IO时间越长提高越多）
+	//PaginatorWG采用协程架构，在RDS环境中测试有20-50%的性能提高（IO时间越长提高越多）
 	PaginatorWG(page ...int) (res Paginate, err error)
 	// 组块结果集
 	// 如果你需要处理成千上万或者更多条数据库记录，可以考虑使用 chunk 方法，该方法一次获取结果集的一小块，
