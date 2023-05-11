@@ -591,7 +591,7 @@ func (dba *Orm) PaginatorWG(page ...int) (res Paginate, err error) {
 	}
 	var limit = dba.GetLimit()
 	if limit == 0 {
-		limit = 30
+		limit = 15
 	}
 	var offset = dba.GetOffset()
 	var currentPage = int(math.Ceil(float64(offset+1) / float64(limit)))
@@ -613,8 +613,14 @@ func (dba *Orm) PaginatorWG(page ...int) (res Paginate, err error) {
 	dba.ResetTable()
 	dba.Table(tabname2)
 	go func(db *Orm, data *[]Data, errs1 *error) {
-		*errs1 = db.Select()
-		*data = db.GetISession().GetBindAll()
+		sqlStr, args, temp_err := db.BuildSql()
+		if temp_err != nil {
+			errs1 = &temp_err
+			wg.Done()
+			return
+		}
+		// 执行查询
+		*data, *errs1 = db.GetISession().Query(sqlStr, args...)
 		wg.Done()
 	}(dba, &resData, &err1)
 
