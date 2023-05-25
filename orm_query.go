@@ -625,6 +625,30 @@ func (dba *Orm) PaginatorWG(page ...int) (res Paginate, err error) {
 	var err2 error
 	go func(db *Orm, c *int64, errs2 *error) {
 		db.offset = 0
+		new_fields := []string{}
+		for _, field := range fields {
+			field_low := strings.ToLower(field)
+			if strings.Contains(field_low, "count(") {
+				new_fields = append(new_fields, field)
+				break
+			}
+			if strings.Contains(field_low, "sum(") {
+				new_fields = append(new_fields, field)
+				break
+			}
+			if strings.Contains(field_low, "max(") {
+				new_fields = append(new_fields, field)
+				break
+			}
+			if strings.Contains(field_low, "min(") {
+				new_fields = append(new_fields, field)
+				break
+			}
+			if strings.Contains(field_low, "avg(") {
+				new_fields = append(new_fields, field)
+				break
+			}
+		}
 		db.fields = fields
 		db.GetISession().GetIBinder().SetBindName(tabname)
 		db.GetISession().GetIBinder().SetBindPrefix(prefix)
