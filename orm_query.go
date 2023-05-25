@@ -649,7 +649,7 @@ func (dba *Orm) PaginatorWG(page ...int) (res Paginate, err error) {
 				break
 			}
 		}
-		db.fields = fields
+		db.fields = new_fields
 		db.GetISession().GetIBinder().SetBindName(tabname)
 		db.GetISession().GetIBinder().SetBindPrefix(prefix)
 		db.where = where
