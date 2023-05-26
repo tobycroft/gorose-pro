@@ -79,6 +79,10 @@ func (dba *Orm) Counts(count_fileds ...string) (int64, error) {
 		order := dba.order
 		dba.order = ""
 		dba.limit = 0
+		if len(dba.fields) < 1 {
+			dba.fields = []string{"1"}
+		}
+		//fmt.Println(dba.fields)
 		//dba.fields = []string{"count(DISTINCT " + dba.group + ") as count"}
 		// 构建sql
 		sqls, args, err := dba.BuildSql()
