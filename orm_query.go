@@ -277,6 +277,7 @@ func (dba *Orm) Value(field string) (v interface{}, err error) {
 
 // Type is get a row of a field value
 func (dba *Orm) Column(field string) (v []interface{}, err error) {
+	dba.fields = []string{field}
 	res, err := dba.Get()
 	if err != nil {
 		return
