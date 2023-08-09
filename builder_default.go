@@ -624,13 +624,16 @@ func (b *BuilderDefault) parseParams(args []interface{}, ormApi IOrm) (s string,
 		//	b.SetBindValues(argsReal[2])
 		case "in", "not in":
 			paramsToArr = append(paramsToArr, "("+argsReal[2].(string)+")")
-			paramsToArr = append(paramsToArr, b.GetPlaceholder())
-			b.SetBindValues(argsReal[3])
 
 		default:
 			paramsToArr = append(paramsToArr, b.GetPlaceholder())
-			b.SetBindValues(argsReal[3])
+			//b.SetBindValues(argsReal[3])
 		}
+		var ar2 = t.New(argsReal[3]).Slice()
+		for _, item := range ar2 {
+			b.SetBindValues(t.New(item).Interface())
+		}
+
 	case 3: // 常规3个参数:  {"id",">",1}
 		//if !inArray(argsReal[1], b.GetRegex()) {
 		if !inArray(argsReal[1], b.GetOperator()) {
