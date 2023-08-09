@@ -36,7 +36,8 @@
 - (*Pro)支持事务嵌套
 - (*Pro)支持复杂Where/OrWhere条件下的and/or条件查询（复杂环境下极好用！）
 - (*Pro)CountGroup使用GroupBy的时候返回正确的行数
-- (*Pro)subQuery安全的子查询，链式操作无需编写语句
+- (*Pro)SubQuery，安全链式参数化查询操作无需编写语句,生成From *subquery语句*
+- (*Pro)SubWhere，安全链式参数化子查询，生成Where *field* *in/=/like...* *subquery*
 - (*Pro)修复原版Paginator会出现函数不正确的BUG，高效不出错
 - (*Pro)PagiantorWG高性能多线程分页器[性能指示](./doc/performance/PaginatorWG.md)
 
