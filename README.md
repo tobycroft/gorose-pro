@@ -27,7 +27,7 @@
 
 - 100%兼容原版
 - 本项目已经包含所有Gorose的更新以及Bug修复以及Issues中提到但未修复的问题
-- 直觉式编程，更加适合ThinkPHP/Laravel开发人员
+- 更加适合ThinkPHP/Laravel开发人员
 - go get -u 直接升级，每次升级均做到向上向下兼容无需担心更新后不兼容导致的事故
 - 更深度支持MySQL和MariaDB
 - 详细文档支持
