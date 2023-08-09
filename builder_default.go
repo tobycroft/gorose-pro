@@ -618,17 +618,8 @@ func (b *BuilderDefault) parseParams(args []interface{}, ormApi IOrm) (s string,
 		paramsToArr = append(paramsToArr, b.current.AddFieldQuotes(argsReal[0].(string)))
 		paramsToArr = append(paramsToArr, argsReal[1].(string))
 
-		switch strings.Trim(strings.ToLower(t.New(argsReal[1]).String()), " ") {
-		//case "like", "not like":
-		//	paramsToArr = append(paramsToArr, b.GetPlaceholder())
-		//	b.SetBindValues(argsReal[2])
-		case "in", "not in":
-			paramsToArr = append(paramsToArr, "("+argsReal[2].(string)+")")
+		paramsToArr = append(paramsToArr, "("+argsReal[2].(string)+")")
 
-		default:
-			paramsToArr = append(paramsToArr, b.GetPlaceholder())
-			//b.SetBindValues(argsReal[3])
-		}
 		var ar2 = t.New(argsReal[3]).Slice()
 		for _, item := range ar2 {
 			b.SetBindValues(t.New(item).Interface())
