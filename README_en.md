@@ -33,6 +33,9 @@
 - Support complexity and/or sql in Where/OrWhere function
 - Paginator is now able to return the correct TOTAL number
 - Add CountGroup to return correct row count from sql sentence
+- SubQuery: Highly security parameterized query under prepared condition
+- SubWhere: Full Prepared condition parameterized where sql searching
+
 
 ## Purpose of this project
 

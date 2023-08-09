@@ -72,7 +72,7 @@
 - 嵌套事务
     - [支付环境下复杂的嵌套事务实例](../../wiki/支付环境下复杂的嵌套事务)
 - 子查询subQuery
-    - [subSql防注入子查询](../../wiki/subQuery安全子查询)
+    - [SubSql防注入子查询](../../wiki/SubQuery安全子查询)
 - 安全性能
     - [Paginator-Performance-by-ChatGPT](../../wiki/Paginator分页查询的性能问题-ChatGPT )
 
