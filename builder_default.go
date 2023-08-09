@@ -452,6 +452,10 @@ func (b *BuilderDefault) parseWhere(ormApi IOrm) (string, error) {
 		paramsLength := len(params)
 
 		switch paramsLength {
+		case 5: //四个参数{subquery}
+			fmt.Println(5, "new")
+			fmt.Println(params)
+			return "", errors.New("test")
 		case 3: // 常规3个参数:  {"id",">",1}
 			res, err := b.parseParams(params, ormApi)
 			if err != nil {

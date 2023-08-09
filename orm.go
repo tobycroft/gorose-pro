@@ -177,6 +177,12 @@ func (dba *Orm) Page(page int) IOrm {
 }
 
 // Where : query or execute where condition, the relation is and
+func (dba *Orm) SubWhere(field, condition, alias, sql string, args []interface{}) IOrm {
+	dba.Where(field, condition, alias, sql, args)
+	return dba
+}
+
+// Where : query or execute where condition, the relation is and
 func (dba *Orm) Where(args ...interface{}) IOrm {
 	if len(args) == 0 ||
 		t.New(args[0]).Bool() == false {
