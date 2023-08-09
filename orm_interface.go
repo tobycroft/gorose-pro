@@ -11,7 +11,7 @@ type IOrm interface {
 	BuildSql(operType ...string) (string, []interface{}, error)
 	Table(tab interface{}) IOrm
 	SubQuery(sql, alias string, args []interface{}) IOrm
-	SubWhere(field, condition, alias, sql string, args []interface{}) IOrm
+	SubWhere(field, condition, sql string, args []interface{}) IOrm
 	// fields=select
 	Fields(fields ...string) IOrm
 	AddFields(fields ...string) IOrm

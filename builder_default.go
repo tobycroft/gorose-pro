@@ -452,10 +452,12 @@ func (b *BuilderDefault) parseWhere(ormApi IOrm) (string, error) {
 		paramsLength := len(params)
 
 		switch paramsLength {
-		case 5: //四个参数{subquery}
-			fmt.Println(5, "new")
-			fmt.Println(params)
-			return "", errors.New("test")
+		case 4: //SubWhere专用4+1参数
+			res, err := b.parseParams(params, ormApi)
+			if err != nil {
+				return res, err
+			}
+			where = append(where, condition+" "+res)
 		case 3: // 常规3个参数:  {"id",">",1}
 			res, err := b.parseParams(params, ormApi)
 			if err != nil {
@@ -605,6 +607,30 @@ func (b *BuilderDefault) parseParams(args []interface{}, ormApi IOrm) (s string,
 	var paramsToArr []string
 
 	switch paramsLength {
+	case 4: //SubWhere专用4+1参数
+		if !inArray(argsReal[1], b.GetOperator()) {
+			err = errors.New("where parameter is wrong")
+			b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
+			return
+		}
+
+		//paramsToArr = append(paramsToArr, argsReal[0].(string))
+		paramsToArr = append(paramsToArr, b.current.AddFieldQuotes(argsReal[0].(string)))
+		paramsToArr = append(paramsToArr, argsReal[1].(string))
+
+		switch strings.Trim(strings.ToLower(t.New(argsReal[1]).String()), " ") {
+		//case "like", "not like":
+		//	paramsToArr = append(paramsToArr, b.GetPlaceholder())
+		//	b.SetBindValues(argsReal[2])
+		case "in", "not in":
+			paramsToArr = append(paramsToArr, "("+argsReal[2].(string)+")")
+			paramsToArr = append(paramsToArr, b.GetPlaceholder())
+			b.SetBindValues(argsReal[3])
+
+		default:
+			paramsToArr = append(paramsToArr, b.GetPlaceholder())
+			b.SetBindValues(argsReal[3])
+		}
 	case 3: // 常规3个参数:  {"id",">",1}
 		//if !inArray(argsReal[1], b.GetRegex()) {
 		if !inArray(argsReal[1], b.GetOperator()) {

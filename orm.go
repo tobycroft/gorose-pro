@@ -177,8 +177,8 @@ func (dba *Orm) Page(page int) IOrm {
 }
 
 // Where : query or execute where condition, the relation is and
-func (dba *Orm) SubWhere(field, condition, alias, sql string, args []interface{}) IOrm {
-	dba.Where(field, condition, alias, sql, args)
+func (dba *Orm) SubWhere(field, condition, sql string, args []interface{}) IOrm {
+	dba.Where(field, condition, "("+sql+")", args)
 	return dba
 }
 
