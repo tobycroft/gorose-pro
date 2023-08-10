@@ -292,7 +292,10 @@ func (dba *Orm) WhereIn(needle string, hystack []interface{}) IOrm {
 
 // OrWhereIn ...
 func (dba *Orm) OrWhereIn(needle string, hystack []interface{}) IOrm {
-	return dba.OrWhere(needle, "IN", hystack)
+	if len(hystack) > 0 {
+		dba.OrWhere(needle, "IN", hystack)
+	}
+	return dba
 }
 
 // WhereNotIn ...
