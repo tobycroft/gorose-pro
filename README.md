@@ -3,11 +3,9 @@
 [![GoDoc](https://godoc.org/github.com/tobycroft/gorose-pro?status.svg)](https://godoc.org/github.com/tobycroft/gorose-pro)
 [![Go Report Card](https://goreportcard.com/badge/github.com/tobycroft/gorose-pro)](https://goreportcard.com/report/github.com/tobycroft/gorose-pro)
 [![GitHub release](https://img.shields.io/github/release/tobycroft/gorose-pro.svg)](https://github.com/tobycroft/gorose-pro/releases/latest)
-[![Gitter](https://badges.gitter.im/tobycroft/gorose-pro.svg)](https://gitter.im/gorose-pro/wechat)
 ![GitHub](https://img.shields.io/github/license/tobycroft/gorose-pro?color=blue)
 ![GitHub All Releases](https://img.shields.io/github/downloads/tobycroft/gorose-pro/total?color=blue)
 <a target="_blank" href="https://qm.qq.com/cgi-bin/qm/qr?k=P0R-T6lnM--WHzgvGPnbd58US3IUoDlW&jump_from=webapi">
-94537310
 <img border="0" src="http://pub.idqqimg.com/wpa/images/group.png" alt="gorose-orm" title="gorose-orm"></a>
 
 ~~~
@@ -25,6 +23,7 @@
 
 ## 原版和Pro版本区别（原版没有的功能）+（猜你关心）
 
+- 反馈群：94537310
 - 100%兼容原版
 - 本项目已经包含所有Gorose的更新以及Bug修复以及Issues中提到但未修复的问题
 - 更加适合ThinkPHP/Laravel开发人员
