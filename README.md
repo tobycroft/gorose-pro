@@ -159,3 +159,12 @@ panic(err.Error())
 ## Stargazers over time
 
 [![Stargazers over time](https://starchart.cc/tobycroft/gorose-pro.svg)](https://starchart.cc/tobycroft/gorose-pro)
+
+
+
+
+## Jetbrain IdeaInteliJ Support
+
+
+<img src="./jetbrains-variant-4.png">
+
