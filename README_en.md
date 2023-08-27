@@ -39,6 +39,7 @@
 
 ## Purpose of this project
 
+- Fee: Totally Free but only need your star
 - Avoid the risk of the deprecation of the original ver
 - To solve the shortage during coding in the real life
 - Massive demos from the document, what ever the skill you are, you still able to find a solution here
