@@ -1,4 +1,4 @@
-# GoRose-ORM-Pro for Commercial
+# GoRose-ORM-Pro A Free Go MySQL ORM
 
 [![GoDoc](https://godoc.org/github.com/tobycroft/gorose-pro?status.svg)](https://godoc.org/github.com/tobycroft/gorose-pro)
 [![Go Report Card](https://goreportcard.com/badge/github.com/tobycroft/gorose-pro)](https://goreportcard.com/report/github.com/tobycroft/gorose-pro)

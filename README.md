@@ -1,4 +1,4 @@
-# GoRose-ORM-Pro for Commercial(专业版)
+# GoRose-ORM-Pro 完全免费的MySQL数据库ORM
 
 [![GoDoc](https://godoc.org/github.com/tobycroft/gorose-pro?status.svg)](https://godoc.org/github.com/tobycroft/gorose-pro)
 [![Go Report Card](https://goreportcard.com/badge/github.com/tobycroft/gorose-pro)](https://goreportcard.com/report/github.com/tobycroft/gorose-pro)
