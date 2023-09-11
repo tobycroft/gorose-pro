@@ -286,30 +286,35 @@ func (dba *Orm) OrWhereNotRegexp(arg string, expstr string) IOrm {
 func (dba *Orm) WhereIn(needle string, hystack []interface{}) IOrm {
 	if len(hystack) > 0 {
 		return dba.Where(needle, "IN", hystack)
+	} else {
+		return dba.WhereNull(needle)
 	}
-	return dba
 }
 
 // OrWhereIn ...
 func (dba *Orm) OrWhereIn(needle string, hystack []interface{}) IOrm {
 	if len(hystack) > 0 {
-		dba.OrWhere(needle, "IN", hystack)
+		return dba.OrWhere(needle, "IN", hystack)
+	} else {
+		return dba.OrWhereNull(needle)
 	}
-	return dba
 }
 
 // WhereNotIn ...
 func (dba *Orm) WhereNotIn(needle string, hystack []interface{}) IOrm {
 	if len(hystack) > 0 {
 		return dba.Where(needle, "NOT IN", hystack)
+	} else {
+		return dba.WhereNotNull(needle)
 	}
-	return dba
 }
 
 // OrWhereNotIn ...
 func (dba *Orm) OrWhereNotIn(needle string, hystack []interface{}) IOrm {
 	if len(hystack) > 0 {
-		return dba.OrWhere(needle, "NOT IN", hystack)
+		dba.OrWhere(needle, "NOT IN", hystack)
+	} else {
+		dba.OrWhereNotNull(needle)
 	}
 	return dba
 }
