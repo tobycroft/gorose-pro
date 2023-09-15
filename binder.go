@@ -13,9 +13,6 @@ type Map t.MapStringT
 // Data ...
 type Data map[string]interface{}
 
-// Ret Yes. this is what you think, but still under testing
-type Ret[T int64 | float64 | string | any] map[string]T
-
 //Paginate
 type Paginate struct {
 	Total        int64       `json:"total",gorose:"total" :"total"`
