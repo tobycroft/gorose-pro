@@ -11,13 +11,13 @@ import (
 type Map t.MapStringT
 
 // Data ...
-//type Data map[string]interface{}
+type Data map[string]interface{}
 
 // Ret Yes. this is what you think, but still under testing
-type Data[T int64 | float64 | string | any] map[string]T
+type Ret[T int64 | float64 | string | any] map[string]T
 
 //Paginate
-type Paginate[T int64 | float64 | string | any] struct {
+type Paginate struct {
 	Total        int64       `json:"total",gorose:"total" :"total"`
 	PerPage      int         `json:"per_page",gorose:"per_page" :"per_page"`
 	CurrentPage  int         `json:"current_page",gorose:"current_page" :"current_page"`
@@ -26,7 +26,7 @@ type Paginate[T int64 | float64 | string | any] struct {
 	LastPageUrl  int         `json:"last_page_url",gorose:"last_page_url" :"last_page_url"`
 	NextPageUrl  interface{} `json:"next_page_url",gorose:"next_page_url" :"next_page_url"`
 	PrevPageUrl  interface{} `json:"prev_page_url",gorose:"prev_page_url" :"prev_page_url"`
-	Data         []Data[T]   `json:"data",gorose:"data" :"data"`
+	Data         []Data      `json:"data",gorose:"data" :"data"`
 }
 
 // BindType ...
@@ -69,7 +69,7 @@ func (b BindType) String() string {
 }
 
 // Binder ...
-type Binder[T int64 | float64 | string | any] struct {
+type Binder struct {
 	// Bind是指传入的对象 [slice]map,[slice]struct
 	// 传入的原始对象
 	BindOrigin interface{}
@@ -88,14 +88,14 @@ type Binder[T int64 | float64 | string | any] struct {
 	BindLimit  int
 	BindPrefix string
 	// 多条map结果,传入的是string table时
-	BindAll []Data[T]
+	BindAll []Data
 }
 
-var _ IBinder = &Binder[t.Type]{}
+var _ IBinder = &Binder{}
 
 // NewBinder ...
-func NewBinder[T int64 | float64 | string | any](o ...interface{}) *Binder[T] {
-	var binder = new(Binder[T])
+func NewBinder(o ...interface{}) *Binder {
+	var binder = new(Binder)
 	if len(o) > 0 {
 		binder.SetBindOrigin(o[0])
 	} else {
@@ -105,7 +105,7 @@ func NewBinder[T int64 | float64 | string | any](o ...interface{}) *Binder[T] {
 }
 
 // BindParse ...
-func (o *Binder[T]) BindParse(prefix string) error {
+func (o *Binder) BindParse(prefix string) error {
 	if o.GetBindOrigin() == nil {
 		return nil
 	}
