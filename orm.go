@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-//type TransactionHandlerFunc func(db IOrm) error
+// type TransactionHandlerFunc func(db IOrm) error
 // Orm ...
 type Orm struct {
 	ISession
