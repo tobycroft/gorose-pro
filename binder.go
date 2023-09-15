@@ -8,7 +8,7 @@ import (
 )
 
 // Map ...
-type Map t.MapStringT
+//type Map t.MapStringT
 
 // Data ...
 type Data map[string]interface{}
