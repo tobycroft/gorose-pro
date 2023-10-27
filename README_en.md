@@ -49,6 +49,7 @@
 - Dirty Read under concurrency circumstances(this will be only and easily triggered by using *db mode)
 - Paginate fixed, this function finally come back to life, new "Paginator" function make it much more easier to use
 - Fix the row_count(Total in Paginator mode) when using GroupBy function
+- Fix Oracle unable to connect & use problem, Fixed arm MacM1 chip's compatibility with Oracle
 
 ## Docs and Demos（Wiki）
 
@@ -95,7 +96,7 @@ go get -u github.com/tobycroft/gorose-pro
 - mysql : https://github.com/go-sql-driver/mysql
 - sqlite3 : https://github.com/mattn/go-sqlite3
 - postgres : https://github.com/lib/pq
-- oracle : https://github.com/mattn/go-oci8
+- oracle : https://github.com/mattn/go-ora
 - mssql : https://github.com/denisenkom/go-mssqldb
 - clickhouse : https://github.com/kshvakov/clickhouse
 

@@ -29,3 +29,11 @@ func (FieldQuotesDefault) AddFieldQuotes(field string) string {
 	}
 	return field
 }
+
+func (FieldQuotesDefault) AddFieldQuotesOracle(field string) string {
+	reg := regexp.MustCompile(`^\w+$`)
+	if reg.MatchString(field) {
+		return fmt.Sprintf("\"%s\"", field)
+	}
+	return field
+}

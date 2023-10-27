@@ -54,6 +54,7 @@
 - 修复了高并发下，where等参数的的脏数据问题(如果你在用原版，避免生产环境使用单db)
 - 修复了Paginate不能用的问题，并且新增Paginator，让返回更加清晰
 - 修复原版Count和GroupBy同时使用时会出现的Total(总条数)错误的问题
+- 修复原版Oracle不可用问题，替换驱动使M1以后的ARM芯片可直连
 
 
 ## 实例文档（Wiki）
@@ -103,7 +104,7 @@ go get -u github.com/tobycroft/gorose-pro
 - mysql : https://github.com/go-sql-driver/mysql
 - sqlite3 : https://github.com/mattn/go-sqlite3
 - postgres : https://github.com/lib/pq
-- oracle : https://github.com/mattn/go-oci8
+- oracle : https://github.com/mattn/go-ora
 - mssql : https://github.com/denisenkom/go-mssqldb
 - clickhouse : https://github.com/kshvakov/clickhouse
 

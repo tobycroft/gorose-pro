@@ -12,7 +12,7 @@ import (
 
 const (
 	// DriverOracle ...
-	DriverOracle = "oci8"
+	DriverOracle = "oracle"
 )
 
 var (
@@ -43,7 +43,7 @@ func NewBuilderOracle(o IOrm) *BuilderOracle {
 
 func init() {
 	var builder = &BuilderOracle{}
-	NewBuilderDriver().Register(DriverOracle, builder)
+	NewBuilderDriver().Register(DriverOracle, NewBuilderOracle(builder))
 }
 
 // Clone : a new obj
@@ -251,7 +251,6 @@ func (b *BuilderOracle) BuildWhere() (where string, err error) {
 	return If(where == "", "", " WHERE "+where).(string), err
 }
 
-// BuildDistinct ...
 func (b *BuilderOracle) BuildDistinct() (dis string) {
 	return b.BuilderDefault.BuildDistinct()
 }
@@ -263,7 +262,7 @@ func (b *BuilderOracle) BuildFields() string {
 
 // BuildTable ...
 func (b *BuilderOracle) BuildTable() string {
-	return b.BuilderDefault.BuildTable()
+	return b.AddFieldQuotesOracle(b.BuilderDefault.IOrm.GetTable())
 }
 
 // BuildGroup ...
