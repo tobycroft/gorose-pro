@@ -219,7 +219,7 @@ func (b *BuilderOracle) BuildReplace(update, where string) (select_sql, on_sql, 
 			on_sql += " and"
 		}
 		warr = append(warr, ws)
-		on_sql += " t.\"" + ws + "\"=" + "d.\"" + ws + "\""
+		on_sql += " t." + b.AddFieldQuotesOracle(ws) + "=" + "d." + b.AddFieldQuotesOracle(ws) + ""
 	}
 
 	data1 := strings.Split(update, ",")
