@@ -218,10 +218,10 @@ func (b *BuilderOracle) BuildReplace(update, where string) (select_sql, on_sql, 
 		if i > 0 {
 			on_sql += " and"
 		}
-		warr = append(warr, ws)
+		warr = append(warr, b.AddFieldQuotesOracle(ws))
 		on_sql += " t." + b.AddFieldQuotesOracle(ws) + "=" + "d." + b.AddFieldQuotesOracle(ws) + ""
 	}
-
+	fmt.Println(warr)
 	data1 := strings.Split(update, ",")
 	for i, data := range data1 {
 		data_kv := strings.Split(data, "=")
@@ -230,7 +230,7 @@ func (b *BuilderOracle) BuildReplace(update, where string) (select_sql, on_sql, 
 			insert_keys += ","
 			insert_vals += ","
 		}
-		if !inArray(data_kv[0], warr) {
+		if !inArray(b.AddFieldQuotesOracle(data_kv[0]), warr) {
 			if len(warr) > 0 {
 				if update_sql != "" && i > 0 {
 					update_sql += ","
