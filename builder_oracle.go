@@ -174,12 +174,7 @@ func (b *BuilderOracle) BuildExecuteOra(operType string) (sqlStr string, args []
 		sqlStr = fmt.Sprintf("DELETE FROM %s%s", b.BuildTable(), where)
 		break
 	case "replace":
-		if where == "" && b.IOrm.GetForce() == false {
-			err = errors.New("出于安全考虑, update时where条件不能为空, 如果真的不需要where条件, 请使用Force()(如: db.xxx.Force().Update())")
-			b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
-			return
-		}
-		sqlStr = fmt.Sprintf("REPLACE INTO %s (%s) VALUES %s", b.BuildTable(), insertkey, insertval)
+		err = errors.New("Oracle不支持Replace查询，如需使用Replace()函数，可以手动在Fields()中输入")
 		break
 	}
 
