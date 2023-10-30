@@ -156,6 +156,7 @@ func (b *BuilderOracle) BuildExecuteOra(operType string) (sqlStr string, args []
 	switch operType {
 	case "insert":
 		sqlStr = fmt.Sprintf("INSERT INTO %s (%s) VALUES %s", b.BuildTable(), insertkey, insertval)
+		break
 	case "update":
 		if where == "" && b.IOrm.GetForce() == false {
 			err = errors.New("出于安全考虑, update时where条件不能为空, 如果真的不需要where条件, 请使用Force()(如: db.xxx.Force().Update())")
@@ -163,6 +164,7 @@ func (b *BuilderOracle) BuildExecuteOra(operType string) (sqlStr string, args []
 			return
 		}
 		sqlStr = fmt.Sprintf("UPDATE %s SET %s%s", b.BuildTable(), update, where)
+		break
 	case "delete":
 		if where == "" && b.IOrm.GetForce() == false {
 			err = errors.New("出于安全考虑, delete时where条件不能为空, 如果真的不需要where条件, 请使用Force()(如: db.xxx.Force().Delete())")
@@ -170,6 +172,15 @@ func (b *BuilderOracle) BuildExecuteOra(operType string) (sqlStr string, args []
 			return
 		}
 		sqlStr = fmt.Sprintf("DELETE FROM %s%s", b.BuildTable(), where)
+		break
+	case "replace":
+		if where == "" && b.IOrm.GetForce() == false {
+			err = errors.New("出于安全考虑, update时where条件不能为空, 如果真的不需要where条件, 请使用Force()(如: db.xxx.Force().Update())")
+			b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
+			return
+		}
+		sqlStr = fmt.Sprintf("REPLACE INTO %s (%s) VALUES %s", b.BuildTable(), insertkey, insertval)
+		break
 	}
 
 	args = b.IOrm.GetBindValues()

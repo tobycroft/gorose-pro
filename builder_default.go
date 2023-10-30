@@ -130,8 +130,10 @@ func (b *BuilderDefault) BuildExecute(operType string) (sqlStr string, args []in
 	switch operType {
 	case "insert":
 		sqlStr = fmt.Sprintf("INSERT INTO %s (%s) VALUES %s", b.BuildTable(), insertkey, insertval)
+		break
 	case "replace":
 		sqlStr = fmt.Sprintf("REPLACE INTO %s (%s) VALUES %s", b.BuildTable(), insertkey, insertval)
+		break
 	case "update":
 		where, err = b.BuildWhere()
 		if err != nil {
@@ -144,8 +146,8 @@ func (b *BuilderDefault) BuildExecute(operType string) (sqlStr string, args []in
 			return
 		}
 		sqlStr = fmt.Sprintf("UPDATE %s SET %s%s", b.BuildTable(), update, where)
+		break
 	case "delete":
-
 		where, err = b.BuildWhere()
 		if err != nil {
 			b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
@@ -157,6 +159,7 @@ func (b *BuilderDefault) BuildExecute(operType string) (sqlStr string, args []in
 			return
 		}
 		sqlStr = fmt.Sprintf("DELETE FROM %s%s", b.BuildTable(), where)
+		break
 	}
 
 	args = b.GetBindValues()

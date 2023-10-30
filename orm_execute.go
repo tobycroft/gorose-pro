@@ -41,7 +41,7 @@ func (dba *Orm) Delete() (int64, error) {
 	return dba.exec("delete")
 }
 
-// Delete : delete data
+// exec : Execute a sql
 func (dba *Orm) exec(operType string, data ...interface{}) (int64, error) {
 	if operType == "insert" || operType == "update" {
 		if dba.GetData() == nil {
