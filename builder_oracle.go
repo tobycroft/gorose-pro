@@ -6,6 +6,7 @@ import (
 	"github.com/gohouse/golib/structEngin"
 	"github.com/gohouse/t"
 	"reflect"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -146,18 +147,17 @@ func (b *BuilderOracle) BuildExecuteOra(operType string) (sqlStr string, args []
 		}
 		update, insertkey, insertval = b.BuildData(operType)
 	}
-
-	where, err := b.BuildWhere()
-	if err != nil {
-		b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
-		return
-	}
-
+	where := ""
 	switch operType {
 	case "insert":
 		sqlStr = fmt.Sprintf("INSERT INTO %s (%s) VALUES %s", b.BuildTable(), insertkey, insertval)
 		break
 	case "update":
+		where, err = b.BuildWhere()
+		if err != nil {
+			b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
+			return
+		}
 		if where == "" && b.IOrm.GetForce() == false {
 			err = errors.New("出于安全考虑, update时where条件不能为空, 如果真的不需要where条件, 请使用Force()(如: db.xxx.Force().Update())")
 			b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
@@ -166,6 +166,11 @@ func (b *BuilderOracle) BuildExecuteOra(operType string) (sqlStr string, args []
 		sqlStr = fmt.Sprintf("UPDATE %s SET %s%s", b.BuildTable(), update, where)
 		break
 	case "delete":
+		where, err = b.BuildWhere()
+		if err != nil {
+			b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
+			return
+		}
 		if where == "" && b.IOrm.GetForce() == false {
 			err = errors.New("出于安全考虑, delete时where条件不能为空, 如果真的不需要where条件, 请使用Force()(如: db.xxx.Force().Delete())")
 			b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
@@ -174,11 +179,65 @@ func (b *BuilderOracle) BuildExecuteOra(operType string) (sqlStr string, args []
 		sqlStr = fmt.Sprintf("DELETE FROM %s%s", b.BuildTable(), where)
 		break
 	case "replace":
-		err = errors.New("Oracle不支持Replace查询，如需使用Replace()函数，可以手动在Fields()中输入")
+		where, err = b.BuildWithoutWhere()
+		if err != nil {
+			b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
+			return
+		}
+		if where == "" && b.IOrm.GetForce() == false {
+			err = errors.New("出于安全考虑, update时where条件不能为空, 如果真的不需要where条件, 请使用Force()(如: db.xxx.Force().Update())")
+			b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
+			return
+		}
+		select_sql, multiWhere, update_sql, insert_keys, insert_vals, err := b.BuildReplace(update, where)
+		if err != nil {
+			return "", nil, err
+		}
+		sqlStr = fmt.Sprintf("MERGE INTO %s t USING (select %s FROM dual) d on (%s) WHEN matched THEN UPDATE SET%s WHEN NOT matched THEN INSERT (%s) VALUES (%s)",
+			b.BuildTable(), select_sql, multiWhere, update_sql, insert_keys, insert_vals)
 		break
 	}
 
 	args = b.IOrm.GetBindValues()
+	return
+}
+
+func (b *BuilderOracle) BuildReplace(update, where string) (select_sql, multiWhere, update_sql, insert_keys, insert_vals string, err error) {
+	var reg *regexp.Regexp
+	reg, err = regexp.Compile(`\(([^\)]+)\)`)
+	if err != nil {
+		return
+	}
+
+	wheres := reg.FindAllString(where, -1)
+	warr := []string{}
+	for i, ws := range wheres {
+		ws = strings.ReplaceAll(ws, "(", "")
+		ws = strings.ReplaceAll(ws, ")", "")
+		if i > 0 {
+			multiWhere += " and"
+		}
+		warr = append(warr, ws)
+		multiWhere += " t.\"" + ws + "\"=" + "d.\"" + ws + "\""
+	}
+	data1 := strings.Split(update, ",")
+	for i, data := range data1 {
+		data_kv := strings.Split(data, "=")
+		if i > 0 {
+			select_sql += ","
+			insert_keys += ","
+			insert_vals += ","
+		}
+		if !inArray(data_kv[0], warr) {
+			if update_sql != "" && i > 0 {
+				update_sql += ","
+			}
+			update_sql += " t." + b.AddFieldQuotesOracle(data_kv[0]) + "=" + "d." + b.AddFieldQuotesOracle(data_kv[0]) + ""
+		}
+		insert_keys += b.AddFieldQuotesOracle(data_kv[0])
+		insert_vals += "d." + b.AddFieldQuotesOracle(data_kv[0]) + ""
+		select_sql += data_kv[1] + " " + b.AddFieldQuotesOracle(data_kv[0])
+	}
 	return
 }
 
@@ -247,6 +306,13 @@ func (b *BuilderOracle) parseData(operType string, data []map[string]interface{}
 // BuildJoin ...
 func (b *BuilderOracle) BuildJoin() (s string, err error) {
 	return b.BuilderDefault.BuildJoin()
+}
+
+func (b *BuilderOracle) BuildWithoutWhere() (where string, err error) {
+	var beforeParseWhere = b.IOrm.GetWhere()
+	where, err = b.parseWhere(b.IOrm)
+	b.IOrm.SetWhere(beforeParseWhere)
+	return If(where == "", "", " "+where).(string), err
 }
 
 // BuildWhere ...
