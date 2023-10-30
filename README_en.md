@@ -35,6 +35,8 @@
 - Add CountGroup to return correct row count from sql sentence
 - SubQuery: Highly security parameterized query under prepared condition
 - SubWhere: Full Prepared condition parameterized where sql searching
+- Fixed original framework's Executor might have unintentionally error or deleted data
+- Oracle support "Replace()" function like MyBatis when a good performance 
 
 
 ## Purpose of this project
