@@ -96,7 +96,7 @@ go get -u github.com/tobycroft/gorose-pro
 - mysql : https://github.com/go-sql-driver/mysql
 - sqlite3 : https://github.com/mattn/go-sqlite3
 - postgres : https://github.com/lib/pq
-- oracle : https://github.com/mattn/go-ora
+- oracle : https://github.com/sijms/go-ora
 - mssql : https://github.com/denisenkom/go-mssqldb
 - clickhouse : https://github.com/kshvakov/clickhouse
 
