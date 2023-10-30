@@ -39,6 +39,8 @@
 - (*Pro)SubWhere，安全链式参数化子查询，生成Where *field* *in/=/like...* *subquery*
 - (*Pro)修复原版Paginator会出现函数不正确的BUG，高效不出错
 - (*Pro)PagiantorWG高性能多线程分页器[性能指示](./doc/performance/PaginatorWG.md)
+- (*Pro)修复Executor可能导致故障或删除据的问题
+- (*Pro)Oracle数据库支持Replace()方法
 
 ## 为什么要使用本项目？
 
