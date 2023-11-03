@@ -1,4 +1,4 @@
-# GoRose-ORM-Pro 完全免费的MySQL数据库ORM
+# GoRose-ORM-Pro 完全免费的数据库ORM
 
 [![GoDoc](https://godoc.org/github.com/tobycroft/gorose-pro?status.svg)](https://godoc.org/github.com/tobycroft/gorose-pro)
 [![Go Report Card](https://goreportcard.com/badge/github.com/tobycroft/gorose-pro)](https://goreportcard.com/report/github.com/tobycroft/gorose-pro)
@@ -59,8 +59,22 @@
 - 修复原版Count和GroupBy同时使用时会出现的Total(总条数)错误的问题
 - 修复原版Oracle不可用问题，替换驱动使M1以后的ARM芯片可直连
 
-## 商业项目
+## 商业项目验证
 
+- MySQL支持已验证
+    - 全版本支持
+    - AliYun-RDS-MySQL8
+    - BT
+        - 8.0.11
+        - 8.0.25+
+- MariaDB支持已验证
+    - 全版本支持
+    - BT
+        - 10.5
+        - 10.7
+    - 10.10
+- Oracle支持已验证
+    - 12XE
 
 
 ## 实例文档（Wiki）
