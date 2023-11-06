@@ -110,8 +110,8 @@ go get -u github.com/tobycroft/gorose-pro
 
 ## Initializing
 
-- [MySQL](../../wiki/初始化方法MySQL)
-- [Oracle](../../wiki/初始化方法Oracle)
+- [MySQL initializing](../../wiki/初始化方法MySQL)
+- [Oracle initializing](../../wiki/初始化方法Oracle)
 
 
 For more configurations, you can configure the cluster, or even configure different databases at the same time. In a

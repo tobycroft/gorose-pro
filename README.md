@@ -132,8 +132,8 @@ go get -u github.com/tobycroft/gorose-pro
 
 ## 配置和链接初始化
 
-- [MySQL](../../wiki/初始化方法MySQL)
-- [Oracle](../../wiki/初始化方法Oracle)
+- [MySQL的初始化方式](../../wiki/初始化方法MySQL)
+- [Oracle的初始化方式](../../wiki/初始化方法Oracle)
 
 更多配置, 可以配置集群,甚至可以同时配置不同数据库在一个集群中, 数据库会随机选择集群的数据库来完成对应的读写操作,
 其中master是写库, slave是读库, 需要自己做好主从复制, 这里只负责读写
