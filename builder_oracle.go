@@ -91,7 +91,7 @@ func (b *BuilderOracle) BuildQueryOra() (sqlStr string, args []interface{}, err 
 	tableName := b.BuildTable()
 	sqlStr = fmt.Sprintf("SELECT %s%s FROM %s%s%s%s%s%s%s", b.BuildDistinct(), fieldsStr,
 		tableName, join, where, b.BuildLimit(), b.BuildGroup(), b.BuildHaving(), b.BuildOrder())
-	fmt.Println("sqlstr1", sqlStr)
+	//fmt.Println("sqlstr1", sqlStr)
 	// 批量取数据需嵌套写法
 	if b.GetLimit() > 0 {
 		aliasNameA := "tabA"
@@ -108,25 +108,25 @@ func (b *BuilderOracle) BuildQueryOra() (sqlStr string, args []interface{}, err 
 		//	}
 		//}
 
-		//if fieldsStr == "*" {
-		//	fieldsStr = b.AddFieldQuotesOracle(b.GetTable()) + ".*, rownum r"
-		//} else {
-		//	if b.GetGroup() == "" {
-		//		fieldsStr = fieldsStr + ", rownum r"
-		//	}
-		//}
-
 		// 没有group by需要1层嵌套， 有group by需要2层嵌套
 		// 如果考虑orderby优化，还需要一层嵌套。目前未考虑
 		if b.GetGroup() == "" {
-			sqlStr = fmt.Sprintf("SELECT %s%s FROM %s%s%s%s%s", b.BuildDistinct(), fieldsStr,
-				tableName, join, where, b.BuildLimit(), b.BuildOrder())
+			sqlStr = fmt.Sprintf("SELECT %s%s FROM %s%s%s%s", b.BuildDistinct(), fieldsStr,
+				tableName, join, where, b.BuildOrder())
 
 			//sqlStr = fmt.Sprintf("select * from (%s) %s where %s.r>=%s",
 			//	sqlStr, aliasNameA, aliasNameA, strconv.Itoa(startRow))
-			fmt.Println("sqlStr2", sqlStr, where, b.BuildLimit())
+			//fmt.Println("sqlStr2", sqlStr, where)
 
 		} else {
+			if fieldsStr == "*" {
+				fieldsStr = b.AddFieldQuotesOracle(b.GetTable()) + ".*, rownum r"
+			} else {
+				if b.GetGroup() == "" {
+					fieldsStr = fieldsStr + ", rownum r"
+				}
+			}
+
 			sqlStr = fmt.Sprintf("SELECT %s%s FROM %s%s%s%s%s%s GROUP BY ROWNUM", b.BuildDistinct(), fieldsStr,
 				tableName, join, where, b.BuildGroup(), b.BuildHaving(), b.BuildOrder())
 
@@ -136,7 +136,7 @@ func (b *BuilderOracle) BuildQueryOra() (sqlStr string, args []interface{}, err 
 				strconv.Itoa(startRow))
 		}
 	}
-
+	//fmt.Println("final",sqlStr)
 	//args = b.bindParams
 	args = b.IOrm.GetBindValues()
 	return

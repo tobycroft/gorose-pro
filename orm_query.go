@@ -1,12 +1,12 @@
 package gorose
 
 import (
-	//"fmt"
 	"github.com/gohouse/t"
 	"math"
 	"reflect"
 	"strings"
 	"sync"
+	//"fmt"
 )
 
 // Select : select one or more rows , relation limit set
@@ -63,7 +63,7 @@ func (dba *Orm) Count(args ...string) (int64, error) {
 	if len(args) > 0 {
 		fields = args[0]
 	}
-	count, err := dba._unionBuild("count", fields)
+	count, err := dba._unionBuild("COUNT", fields)
 	if count == nil {
 		return 0, err
 	}
@@ -91,7 +91,7 @@ func (dba *Orm) Counts(count_fileds ...string) (int64, error) {
 			return 0, err
 		}
 		dba.order = order
-		total_number, err := dba.Query(`SELECT count(*) as count from(`+sqls+`) as counts`, args...)
+		total_number, err := dba.Query(`SELECT COUNT(*) as COUNT from(`+sqls+`) as COUNTS`, args...)
 		if err != nil {
 			return 0, err
 		}
@@ -99,7 +99,7 @@ func (dba *Orm) Counts(count_fileds ...string) (int64, error) {
 		if len(total_number) < 1 {
 			return 0, err
 		}
-		return t.New(total_number[0]["count"]).Int64(), err
+		return t.New(total_number[0]["COUNT"]).Int64(), err
 	}
 }
 
