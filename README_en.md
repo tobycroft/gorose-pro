@@ -108,27 +108,11 @@ go get -u github.com/tobycroft/gorose-pro
 - mssql : https://github.com/denisenkom/go-mssqldb
 - clickhouse : https://github.com/kshvakov/clickhouse
 
-```go
-db.Table("table_name").Fields().Where().GroupBy().Having().OrderBy().Limit().Select()
-db.Table(&ModelStruct).Data().Replace()
-db.Table(&ModelStruct).Data().Insert()
-db.Table(....).Data().Where().Update()
-db.Table(....).Where().Delete()
-```
-
 ## Initializing
 
-DSN mode
+- [MySQL](../../wiki/初始化方法MySQL)
+- [Oracle](../../wiki/初始化方法Oracle)
 
-```go
-var conf gorose.Config
-conf.Driver = "mysql"
-conf.SetMaxIdleConns = 90
-conf.SetMaxOpenConns = 300
-conf.Prefix = ""
-conf.Dsn = dsn()
-return &conf
-```
 
 For more configurations, you can configure the cluster, or even configure different databases at the same time. In a
 cluster, the database will randomly select the database of the cluster to complete the corresponding read-write
