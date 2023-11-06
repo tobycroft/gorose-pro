@@ -65,6 +65,7 @@
     - [Get/Select](../../wiki/Get-Select方法)
     - [Join](../../wiki/Join-Select方法)
     - [Paginator](../../wiki/Paginator复杂的子查询分页构建)
+    - [Paginator in HighPerformant](../../wiki/PaginatorWG多线程分页)
 - Raw SQL sentence mode
     - [Query](../../wiki/Query方法)
 - Nested Transaction(only support in GorosePro)

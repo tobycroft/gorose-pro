@@ -90,6 +90,7 @@
     - [Get/Select返回数组](../../wiki/Get-Select方法)
     - [Join联合查询](../../wiki/Join-Select方法)
     - [Paginator复杂的子查询分页构建](../../wiki/Paginator复杂的子查询分页构建)
+    - [PaginatorWG高性能分页](../../wiki/PaginatorWG多线程分页)
 - Query方法
     - [Query方法使用原生语句查询](../../wiki/Query方法)
 - 嵌套事务
