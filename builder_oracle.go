@@ -482,7 +482,6 @@ func (b *BuilderOracle) parseWhere(ormApi IOrm) (string, error) {
 func (b *BuilderOracle) parseParams(args []interface{}, ormApi IOrm) (s string, err error) {
 	paramsLength := len(args)
 	argsReal := args
-
 	// 存储当前所有数据的数组
 	var paramsToArr []string
 
@@ -495,7 +494,7 @@ func (b *BuilderOracle) parseParams(args []interface{}, ormApi IOrm) (s string, 
 			return
 		}
 
-		paramsToArr = append(paramsToArr, argsReal[0].(string))
+		paramsToArr = append(paramsToArr, b.AddFieldQuotesOracle(argsReal[0].(string)))
 		paramsToArr = append(paramsToArr, argsReal[1].(string))
 
 		switch argsReal[1] {
@@ -520,7 +519,7 @@ func (b *BuilderOracle) parseParams(args []interface{}, ormApi IOrm) (s string, 
 			b.IOrm.SetBindValues(argsReal[2])
 		}
 	case 2:
-		paramsToArr = append(paramsToArr, argsReal[0].(string))
+		paramsToArr = append(paramsToArr, b.AddFieldQuotesOracle(argsReal[0].(string)))
 		paramsToArr = append(paramsToArr, "=")
 		paramsToArr = append(paramsToArr, b.GetPlaceholder())
 		b.IOrm.SetBindValues(argsReal[1])
