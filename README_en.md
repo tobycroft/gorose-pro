@@ -59,6 +59,7 @@
     - [Insert](../../wiki/Insert新增数据)
     - [Delete](../../wiki/Delete删除数据)
     - [Update](../../wiki/Update方法)
+    - [Replace](../../wiki/Replace方法)
 - R as object(Map[string]interface{})
     - [Find/First](../../wiki/Find-First查询返回Obj对象方法)
 - R in array or by join（[]Map[string]interface{}

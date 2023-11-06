@@ -83,6 +83,7 @@
     - [增加Insert](../../wiki/Insert新增数据)
     - [删除Delete](../../wiki/Delete删除数据)
     - [更新Update](../../wiki/Update方法)
+    - [替换-Replace](../../wiki/Replace方法)
 - 单条查询（对象）(Map[string]interface{})
     - [Find/First返回对象](../../wiki/Find-First查询返回Obj对象方法)
 - 多条/联合查询（[]Map[string]interface{}
