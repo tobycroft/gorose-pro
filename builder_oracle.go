@@ -91,7 +91,7 @@ func (b *BuilderOracle) BuildQueryOra() (sqlStr string, args []interface{}, err 
 	tableName := b.BuildTable()
 	sqlStr = fmt.Sprintf("SELECT %s%s FROM %s%s%s%s%s%s%s", b.BuildDistinct(), fieldsStr,
 		tableName, join, where, b.BuildLimit(), b.BuildGroup(), b.BuildHaving(), b.BuildOrder())
-
+	fmt.Println("sqlstr1", sqlStr)
 	// 批量取数据需嵌套写法
 	if b.GetLimit() > 0 {
 		aliasNameA := "tabA"
@@ -100,13 +100,21 @@ func (b *BuilderOracle) BuildQueryOra() (sqlStr string, args []interface{}, err 
 		startRow := (page-1)*b.GetLimit() + 1
 		endRow := page*b.GetLimit() + 1
 
-		if fieldsStr == "*" {
-			fieldsStr = b.GetTable() + ".*, rownum r"
-		} else {
-			if b.GetGroup() == "" {
-				fieldsStr = fieldsStr + ", rownum r"
-			}
-		}
+		//if fieldsStr == "*" {
+		//	fieldsStr = b.AddFieldQuotesOracle(b.GetTable()) + ".*, rownum r"
+		//} else {
+		//	if b.GetGroup() == "" {
+		//		fieldsStr = fieldsStr + ", rownum r"
+		//	}
+		//}
+
+		//if fieldsStr == "*" {
+		//	fieldsStr = b.AddFieldQuotesOracle(b.GetTable()) + ".*, rownum r"
+		//} else {
+		//	if b.GetGroup() == "" {
+		//		fieldsStr = fieldsStr + ", rownum r"
+		//	}
+		//}
 
 		// 没有group by需要1层嵌套， 有group by需要2层嵌套
 		// 如果考虑orderby优化，还需要一层嵌套。目前未考虑
@@ -114,10 +122,12 @@ func (b *BuilderOracle) BuildQueryOra() (sqlStr string, args []interface{}, err 
 			sqlStr = fmt.Sprintf("SELECT %s%s FROM %s%s%s%s%s", b.BuildDistinct(), fieldsStr,
 				tableName, join, where, b.BuildLimit(), b.BuildOrder())
 
-			sqlStr = fmt.Sprintf("select * from (%s) %s where %s.r>=%s",
-				sqlStr, aliasNameA, aliasNameA, strconv.Itoa(startRow))
+			//sqlStr = fmt.Sprintf("select * from (%s) %s where %s.r>=%s",
+			//	sqlStr, aliasNameA, aliasNameA, strconv.Itoa(startRow))
+			fmt.Println("sqlStr2", sqlStr, where, b.BuildLimit())
+
 		} else {
-			sqlStr = fmt.Sprintf("SELECT %s%s FROM %s%s%s%s%s%s", b.BuildDistinct(), fieldsStr,
+			sqlStr = fmt.Sprintf("SELECT %s%s FROM %s%s%s%s%s%s GROUP BY ROWNUM", b.BuildDistinct(), fieldsStr,
 				tableName, join, where, b.BuildGroup(), b.BuildHaving(), b.BuildOrder())
 
 			sqlStr = fmt.Sprintf(
@@ -357,7 +367,26 @@ func (b *BuilderOracle) BuildHaving() string {
 
 // BuildOrder ...
 func (b *BuilderOracle) BuildOrder() string {
-	return b.BuilderDefault.BuildOrder()
+	str_arr1 := strings.Split(b.IOrm.GetOrder(), ",")
+	order := strings.Builder{}
+	for i, s := range str_arr1 {
+		if i > 0 {
+			order.WriteString(",")
+		}
+		temp_arr := strings.Split(s, " ")
+		for _, s2 := range temp_arr {
+			switch strings.TrimSpace(s2) {
+			case "desc", "asc":
+				order.WriteString(" " + strings.TrimSpace(s2))
+				break
+
+			default:
+				order.WriteString(b.AddFieldQuotesOracle(strings.TrimSpace(s2)))
+				break
+			}
+		}
+	}
+	return If(b.IOrm.GetOrder() == "", "", " ORDER BY "+order.String()).(string)
 }
 
 // BuildLimit ...
