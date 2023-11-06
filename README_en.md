@@ -36,8 +36,7 @@
 - SubQuery: Highly security parameterized query under prepared condition
 - SubWhere: Full Prepared condition parameterized where sql searching
 - Fixed original framework's Executor might have unintentionally error or deleted data
-- Oracle support "Replace()" function like MyBatis when a good performance 
-
+- Oracle support "Replace()" function like MyBatis when a good performance
 
 ## Purpose of this project
 
@@ -55,14 +54,14 @@
 
 ## Docs and Demos（Wiki）
 
-- CUD
+- CUD functions
     - [Insert](../../wiki/Insert新增数据)
     - [Delete](../../wiki/Delete删除数据)
     - [Update](../../wiki/Update方法)
     - [Replace](../../wiki/Replace方法)
-- R as object(Map[string]interface{})
+- Read the first line data and return in map[string]any
     - [Find/First](../../wiki/Find-First查询返回Obj对象方法)
-- R in array or by join（[]Map[string]interface{}
+- Read multiple data in array by []map[string]any
     - [Get/Select](../../wiki/Get-Select方法)
     - [Join](../../wiki/Join-Select方法)
     - [Paginator](../../wiki/Paginator复杂的子查询分页构建)
@@ -70,11 +69,16 @@
     - [Query](../../wiki/Query方法)
 - Nested Transaction(only support in GorosePro)
     - [Demos](../../wiki/支付环境下复杂的嵌套事务)
-
+- subQuery
+    - [SubSql](../../wiki/SubQuery安全子查询)
+    - [SubWhere](../../wiki/SubWhere安全子查询)
+- Security and Performance
+    - [Paginator-Performance-by-ChatGPT](../../wiki/Paginator分页查询的性能问题-ChatGPT )
 
 ## Introduction
 
-Gorosepro is an upgrade and revision project of GOORM. It fixes bugs on the basis of supporting all functions of the original
+Gorosepro is an upgrade and revision project of GOORM. It fixes bugs on the basis of supporting all functions of the
+original
 framework and is more suitable for complex commercial projects
 
 Support decoupling development and intuitive programming, greatly reduce your trial and error cost, make small projects
