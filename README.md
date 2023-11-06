@@ -66,7 +66,7 @@
     - AliYun-RDS-MySQL8
     - BT
         - 8.0.11
-        - 8.0.25+
+        - 8.0.34+
 - MariaDB支持已验证
     - 全版本支持
     - BT
