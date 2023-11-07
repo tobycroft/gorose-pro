@@ -162,6 +162,17 @@ panic(err.Error())
 }
 ```
 
+## TODO
+
+- 加入缓存层
+  - 如果不使用Struct来接收返回，可能会导致Hash返回的Column类型从非string统一变成string（这是Redis的问题）
+  - 在开启缓存功能后避免使用断言是比较简单的解决方案，如果吧类型也存在Redis里面，固然能简单的解决但是也会增加Redis的链接负载
+- 可选泛型返回
+  - 预计会对Select下手
+  - 或者新增Scan方法
+    - ScanGet\[T\]()
+    - ScanFind\[T\]()
+
 ## Stargazers over time
 
 [![Stargazers over time](https://starchart.cc/tobycroft/gorose-pro.svg)](https://starchart.cc/tobycroft/gorose-pro)
