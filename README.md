@@ -172,7 +172,9 @@ panic(err.Error())
   - 或者新增Scan方法
     - ScanGet\[T\]()
     - ScanFind\[T\]()
-
+- ElasticSearch
+  - 数据自动上载
+  - 从ES中读取数据
 ## Stargazers over time
 
 [![Stargazers over time](https://starchart.cc/tobycroft/gorose-pro.svg)](https://starchart.cc/tobycroft/gorose-pro)
