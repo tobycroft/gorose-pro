@@ -26,7 +26,7 @@ func (dba *Orm) Select() error {
 	return err
 }
 
-func (dba *Orm) Scan(scan_to_struct any) error {
+func (dba *Orm) Scan(scan_to_struct interface{}) error {
 	dstVal := reflect.ValueOf(scan_to_struct)
 	sliceVal := reflect.Indirect(dstVal)
 	switch sliceVal.Kind() {
