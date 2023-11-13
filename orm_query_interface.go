@@ -5,6 +5,8 @@ type IOrmQuery interface {
 	// 获取数据, 依据传入的绑定对象, 选择查询一条或多条数据并绑定到传入对象上
 	// 当绑定对象传入的是string类型时, 返回多条结果集, 需要使用 Get() 来获取最终结果
 	Select() error
+	//Scan 方法传入struct{}可以解析单条，类似Find方法，输入[]struct{}将会解析成多条，类似Get方法
+	Scan(scan_to_struct any) error
 	// 获取一条结果并返回, 只有当传入的table对象是字符串时生效
 	First() (Data, error)
 	Find() (Data, error)

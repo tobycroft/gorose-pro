@@ -1,6 +1,7 @@
 package gorose
 
 import (
+	"errors"
 	"github.com/gohouse/t"
 	"math"
 	"reflect"
@@ -20,10 +21,67 @@ func (dba *Orm) Select() error {
 	if err != nil {
 		return err
 	}
-
 	// 执行查询
 	_, err = dba.GetISession().Query(sqlStr, args...)
 	return err
+}
+
+func (dba *Orm) Scan(scan_to_struct any) error {
+	dstVal := reflect.ValueOf(scan_to_struct)
+	sliceVal := reflect.Indirect(dstVal)
+	switch sliceVal.Kind() {
+	case reflect.Struct: // struct
+		dba.GetIBinder().SetBindType(OBJECT_STRUCT)
+		dba.GetIBinder().SetBindResult(scan_to_struct)
+		if len(dba.GetIBinder().GetBindFields()) == 0 {
+			dba.GetIBinder().SetBindFields(getTagName(dba.GetIBinder().GetBindResult(), TAGNAME))
+		}
+		switch dstVal.Kind() {
+		case reflect.Ptr, reflect.Struct:
+			break
+		default:
+			return errors.New("传入的对象有误,示例:var user User,传入 &user{}")
+		}
+		dba.Limit(1)
+		sqlStr, args, err := dba.BuildSql()
+		if err != nil {
+			return err
+		}
+		_, err = dba.GetISession().Query(sqlStr, args...)
+		return err
+
+	case reflect.Slice:
+		eltType := sliceVal.Type().Elem()
+		switch eltType.Kind() {
+		case reflect.Struct:
+			dba.GetIBinder().SetBindType(OBJECT_STRUCT_SLICE)
+			br := reflect.New(eltType)
+			dba.GetIBinder().SetBindResult(br.Interface())
+			dba.GetIBinder().SetBindResultSlice(sliceVal)
+			if len(dba.GetIBinder().GetBindFields()) == 0 {
+				dba.GetIBinder().SetBindFields(getTagName(dba.GetIBinder().GetBindResult(), TAGNAME))
+			}
+			switch dstVal.Kind() {
+			case reflect.Ptr, reflect.Struct:
+				break
+			default:
+				return errors.New("传入的对象有误,示例:var user User,传入 &user{}")
+			}
+			sqlStr, args, err := dba.BuildSql()
+			if err != nil {
+				return err
+			}
+			_, err = dba.GetISession().Query(sqlStr, args...)
+			return err
+
+		default:
+			return errors.New("传入[]struct{}将会解析成多条，类似Get方法，注意需要传入指针值，例如传入：&User{},而不是：User{}，不要用这个方法传入Map")
+
+		}
+
+	default:
+		return errors.New("传入struct{}可以解析单条，类似Find方法，传入[]struct{}将会解析成多条，类似Get方法，注意需要传入指针值，例如传入：&User{},而不是：User{}，不要用这个方法传入Map")
+	}
 }
 
 // First : select one row , relation limit set
