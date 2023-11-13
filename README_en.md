@@ -54,27 +54,31 @@
 
 ## Docs and Demos（Wiki）
 
+Notice:'*' means Only Support In GorosePro
+
 - CUD functions
     - [Insert](../../wiki/Insert新增数据)
     - [Delete](../../wiki/Delete删除数据)
     - [Update](../../wiki/Update方法)
-    - [Replace](../../wiki/Replace方法)
+    - *[Replace](../../wiki/Replace方法)
 - Read the first line data and return in map[string]any
     - [Find/First](../../wiki/Find-First查询返回Obj对象方法)
 - Read multiple data in array by []map[string]any
     - [Get/Select](../../wiki/Get-Select方法)
     - [Join](../../wiki/Join-Select方法)
-    - [Paginator](../../wiki/Paginator复杂的子查询分页构建)
-    - [Paginator in HighPerformant](../../wiki/PaginatorWG多线程分页)
+    - *[Paginator](../../wiki/Paginator复杂的子查询分页构建)
+    - *[Paginator in HighPerformant](../../wiki/PaginatorWG多线程分页)
 - Raw SQL sentence mode
     - [Query](../../wiki/Query方法)
 - Nested Transaction(only support in GorosePro)
-    - [Demos](../../wiki/支付环境下复杂的嵌套事务)
+    - *[Demos](../../wiki/支付环境下复杂的嵌套事务)
 - subQuery
-    - [SubSql](../../wiki/SubQuery安全子查询)
-    - [SubWhere](../../wiki/SubWhere安全子查询)
+    - *[SubSql](../../wiki/SubQuery安全子查询)
+    - *[SubWhere](../../wiki/SubWhere安全子查询)
 - Security and Performance
     - [Paginator-Performance-by-ChatGPT](../../wiki/Paginator分页查询的性能问题-ChatGPT )
+- Single/Multiple data to struct（Struct）
+    - *[Scan方法](../../wiki/Scan将结果独立输出到struct)
 
 ## Introduction
 
@@ -112,7 +116,6 @@ go get -u github.com/tobycroft/gorose-pro
 
 - [MySQL initializing](../../wiki/初始化方法MySQL)
 - [Oracle initializing](../../wiki/初始化方法Oracle)
-
 
 For more configurations, you can configure the cluster, or even configure different databases at the same time. In a
 cluster, the database will randomly select the database of the cluster to complete the corresponding read-write

@@ -79,27 +79,31 @@
 
 ## 实例文档（Wiki）
 
+说明：*为GorosePro独有功能
+
 - 增删改
     - [增加Insert](../../wiki/Insert新增数据)
     - [删除Delete](../../wiki/Delete删除数据)
     - [更新Update](../../wiki/Update方法)
-    - [替换-Replace](../../wiki/Replace方法)
+    - *[替换-Replace](../../wiki/Replace方法)
 - 单条查询（对象）(Map[string]interface{})
     - [Find/First返回对象](../../wiki/Find-First查询返回Obj对象方法)
 - 多条/联合查询（[]Map[string]interface{}
     - [Get/Select返回数组](../../wiki/Get-Select方法)
     - [Join联合查询](../../wiki/Join-Select方法)
-    - [Paginator复杂的子查询分页构建](../../wiki/Paginator复杂的子查询分页构建)
-    - [PaginatorWG高性能分页](../../wiki/PaginatorWG多线程分页)
+    - *[Paginator复杂的子查询分页构建](../../wiki/Paginator复杂的子查询分页构建)
+    - *[PaginatorWG高性能分页](../../wiki/PaginatorWG多线程分页)
 - Query方法
     - [Query方法使用原生语句查询](../../wiki/Query方法)
 - 嵌套事务
-    - [支付环境下复杂的嵌套事务实例](../../wiki/支付环境下复杂的嵌套事务)
+    - *[支付环境下复杂的嵌套事务实例](../../wiki/支付环境下复杂的嵌套事务)
 - 子查询subQuery
-    - [SubSql防注入From子查询](../../wiki/SubQuery安全子查询)
-    - [SubWhere防注入where子查询](../../wiki/SubWhere安全子查询)
+    - *[SubSql防注入From子查询](../../wiki/SubQuery安全子查询)
+    - *[SubWhere防注入where子查询](../../wiki/SubWhere安全子查询)
 - 安全性能
     - [Paginator-Performance-by-ChatGPT](../../wiki/Paginator分页查询的性能问题-ChatGPT )
+- 单条/多条查询（Struct）
+    - *[Scan方法](../../wiki/Scan将结果独立输出到struct)
 
 ## 简介
 
@@ -165,16 +169,13 @@ panic(err.Error())
 ## TODO
 
 - 加入缓存层
-  - 如果不使用Struct来接收返回，可能会导致Hash返回的Column类型从非string统一变成string（这是Redis的问题）
-  - 在开启缓存功能后避免使用断言是比较简单的解决方案，如果吧类型也存在Redis里面，固然能简单的解决但是也会增加Redis的链接负载
-- 可选泛型返回
-  - 预计会对Select下手
-  - 或者新增Scan方法
-    - ScanGet\[T\]()
-    - ScanFind\[T\]()
+    - 如果不使用Struct来接收返回，可能会导致Hash返回的Column类型从非string统一变成string（这是Redis的问题）
+    - 在开启缓存功能后避免使用断言是比较简单的解决方案，如果吧类型也存在Redis里面，固然能简单的解决但是也会增加Redis的链接负载
+- 可选泛型返回...已完成
 - ElasticSearch
-  - 数据自动上载
-  - 从ES中读取数据
+    - 数据自动上载
+    - 从ES中读取数据
+
 ## Stargazers over time
 
 [![Stargazers over time](https://starchart.cc/tobycroft/gorose-pro.svg)](https://starchart.cc/tobycroft/gorose-pro)
