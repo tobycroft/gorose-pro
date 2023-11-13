@@ -31,6 +31,11 @@ func (dba *Orm) Scan(scan_to_struct interface{}) error {
 	sliceVal := reflect.Indirect(dstVal)
 	switch sliceVal.Kind() {
 	case reflect.Struct: // struct
+		dba.Limit(1)
+		sqlStr, args, err := dba.BuildSql()
+		if err != nil {
+			return err
+		}
 		dba.GetIBinder().SetBindType(OBJECT_STRUCT)
 		dba.GetIBinder().SetBindResult(scan_to_struct)
 		if len(dba.GetIBinder().GetBindFields()) == 0 {
@@ -42,11 +47,6 @@ func (dba *Orm) Scan(scan_to_struct interface{}) error {
 		default:
 			return errors.New("传入的对象有误,示例:var user User,传入 &user{}")
 		}
-		dba.Limit(1)
-		sqlStr, args, err := dba.BuildSql()
-		if err != nil {
-			return err
-		}
 		_, err = dba.GetISession().Query(sqlStr, args...)
 		return err
 
@@ -54,6 +54,10 @@ func (dba *Orm) Scan(scan_to_struct interface{}) error {
 		eltType := sliceVal.Type().Elem()
 		switch eltType.Kind() {
 		case reflect.Struct:
+			sqlStr, args, err := dba.BuildSql()
+			if err != nil {
+				return err
+			}
 			dba.GetIBinder().SetBindType(OBJECT_STRUCT_SLICE)
 			br := reflect.New(eltType)
 			dba.GetIBinder().SetBindResult(br.Interface())
@@ -66,10 +70,6 @@ func (dba *Orm) Scan(scan_to_struct interface{}) error {
 				break
 			default:
 				return errors.New("传入的对象有误,示例:var user User,传入 &user{}")
-			}
-			sqlStr, args, err := dba.BuildSql()
-			if err != nil {
-				return err
 			}
 			_, err = dba.GetISession().Query(sqlStr, args...)
 			return err
