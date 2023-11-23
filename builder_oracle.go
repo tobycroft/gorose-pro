@@ -314,7 +314,7 @@ func (b *BuilderOracle) parseData(operType string, data []map[string]interface{}
 				b.IOrm.SetBindValues(item[key])
 			}
 			// update
-			dataObj = append(dataObj, fmt.Sprintf("%s=%s", key, b.GetPlaceholder()))
+			dataObj = append(dataObj, fmt.Sprintf("%s=%s", b.AddFieldQuotesOracle(key), b.GetPlaceholder()))
 		}
 		dataValues = append(dataValues, "("+strings.Join(dataValuesSub, ",")+")")
 	}
