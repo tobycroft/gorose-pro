@@ -302,17 +302,17 @@ func (b *BuilderOracle) parseData(operType string, data []map[string]interface{}
 		// 定义1条数据的存储
 		var dataValuesSub []string
 		for _, key := range dataFields {
-			if item[key] == nil {
-				// 放入占位符
-				dataValuesSub = append(dataValuesSub, b.GetPlaceholder())
-				// 保存真正的值为null
-				b.IOrm.SetBindValues("null")
-			} else {
-				// 放入占位符
-				dataValuesSub = append(dataValuesSub, b.GetPlaceholder())
-				// 保存真正的值
-				b.IOrm.SetBindValues(item[key])
-			}
+			//if item[key] == nil {
+			//	// 放入占位符
+			//	dataValuesSub = append(dataValuesSub, b.GetPlaceholder())
+			//	// 保存真正的值为null
+			//	b.IOrm.SetBindValues("null")
+			//} else {
+			// 放入占位符
+			dataValuesSub = append(dataValuesSub, b.GetPlaceholder())
+			// 保存真正的值
+			b.IOrm.SetBindValues(item[key])
+			//}
 			// update
 			dataObj = append(dataObj, fmt.Sprintf("%s=%s", b.AddFieldQuotesOracle(key), b.GetPlaceholder()))
 		}
