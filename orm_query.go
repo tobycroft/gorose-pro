@@ -433,6 +433,7 @@ func (dba *Orm) ChunkWG(onetime_exec_thread int, limit int, callback func([]Data
 	tabname2 := strings.TrimPrefix(tabname, prefix)
 	where, fields, group := dba.where, dba.fields, dba.group
 	dba.Table(tabname2).Limit(limit).Page(page)
+
 	if err = dba.Select(); err != nil {
 		return
 	}
@@ -440,26 +441,31 @@ func (dba *Orm) ChunkWG(onetime_exec_thread int, limit int, callback func([]Data
 	if len(result) < 1 {
 		return
 	}
+	if err = callback(result); err != nil {
+		return
+	}
 	continue_run := true
 	for continue_run {
-		var mp map[string][]interface{}
+		var mp sync.Map
 		for i := 0; i < onetime_exec_thread; i++ {
 			page++
 			dba.ClearBindValues()
+			dba.Table(tabname2).
+				Limit(limit).
+				Page(page)
 			dba.where, dba.fields, dba.group = where, fields, group
-			dba.Table(tabname2).Limit(limit).Page(page)
 			sqlStr, args, err := dba.BuildSql()
 			if err != nil {
 				continue_run = false
 				return err
 			}
-			mp[sqlStr] = args
+			mp.Store(sqlStr, args)
 		}
 		var wg sync.WaitGroup
-		wg.Add(len(mp))
-		for sqlStr, args := range mp {
-			go func(sql string, arg []interface{}) {
-				_result, _err := dba.Query(sql, arg...)
+		wg.Add(onetime_exec_thread)
+		mp.Range(func(sqlStr, args interface{}) bool {
+			go func(db *Orm, sql string, arg []interface{}) {
+				_result, _err := db.Query(sql, arg...)
 				if _err != nil {
 					wg.Done()
 					continue_run = false
@@ -476,8 +482,10 @@ func (dba *Orm) ChunkWG(onetime_exec_thread int, limit int, callback func([]Data
 					continue_run = false
 					return
 				}
-			}(sqlStr, args)
-		}
+				wg.Done()
+			}(dba, sqlStr.(string), args.([]interface{}))
+			return true
+		})
 		wg.Wait()
 	}
 	return
