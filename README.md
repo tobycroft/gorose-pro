@@ -104,6 +104,8 @@
     - [Paginator-Performance-by-ChatGPT](../../wiki/Paginator分页查询的性能问题-ChatGPT )
 - 单条/多条查询（Struct）
     - *[Scan方法](../../wiki/Scan将结果独立输出到struct)
+- 分块读取
+    - *[Chunk分块数据读取](../../wiki/Chunk分块数据读取)
 
 ## 简介
 
