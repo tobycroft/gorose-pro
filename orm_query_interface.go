@@ -37,6 +37,9 @@ type IOrmQuery interface {
 	// 例如，我们可以将处理全部 users 表数据分割成一次处理 100 条记录的小组块
 	// 你可以通过从闭包函数中返回 err 来终止组块的运行
 	Chunk(limit int, callback func([]Data) error) (err error)
+
+	// ChunkWG : ChunkWG是保留Chunk的使用方法的基础上，新增多线程读取&多线程执行的方式，注意onetime_exec_thread不宜过多，推荐4，不宜过大因为采用的是盲读的方法，详情请参考github-wiki的介绍部分
+	ChunkWG(onetime_exec_thread int, limit int, callback func([]Data) error) (err error)
 	// 跟Chunk类似,只不过callback的是传入的结构体
 	ChunkStruct(limit int, callback func() error) (err error)
 	Loop(limit int, callback func([]Data) error) (err error)
