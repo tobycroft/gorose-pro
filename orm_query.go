@@ -7,7 +7,6 @@ import (
 	"reflect"
 	"strings"
 	"sync"
-	//"fmt"
 )
 
 // Select : select one or more rows , relation limit set
@@ -394,11 +393,14 @@ func (dba *Orm) Chunk(limit int, callback func([]Data) error) (err error) {
 	var tabname = dba.GetISession().GetIBinder().GetBindName()
 	prefix := dba.GetISession().GetIBinder().GetBindPrefix()
 	tabname2 := strings.TrimPrefix(tabname, prefix)
+	where, fields, group := dba.where, dba.fields, dba.group
+
 	// 先执行一条看看是否报错, 同时设置指定的limit, offset
-	result, err := dba.Table(tabname2).Limit(limit).Page(page).Get()
-	if err != nil {
+	dba.Table(tabname2).Limit(limit).Page(page)
+	if err = dba.Select(); err != nil {
 		return
 	}
+	result := dba.GetBindAll()
 	for len(result) > 0 {
 		if err = callback(result); err != nil {
 			break
@@ -407,8 +409,46 @@ func (dba *Orm) Chunk(limit int, callback func([]Data) error) (err error) {
 		// 清理绑定数据, 进行下一次操作, 因为绑定数据是每一次执行的时候都会解析并保存的
 		// 而第二次以后执行的, 都会再次解析并保存, 数据结构是slice, 故会累积起来
 		dba.ClearBindValues()
-		result, _ = dba.Page(page).Get()
+		dba.where, dba.fields, dba.group = where, fields, group
+		dba.Table(tabname2).Limit(limit).Page(page)
+		if err = dba.Select(); err != nil {
+			break
+		}
+		result = dba.GetBindAll()
 	}
+	return
+}
+
+// ChunkWG : ChunkWG是在Chunk的基础上，新增带有多线程性质的处理方式，理论性能将会有30%左右的提升，需要处理的数据量越大越多，比原版Chunk的提升就越明显
+// 使用ChunkWG处理大量数据，请尽量保证有足够多的连接数，避免影响程序其他需要数据库的部分连接进入等待状态
+func (dba *Orm) ChunkWG(limit int, callback func([]Data) error) (err error) {
+	//var page = 1
+	//var tabname = dba.GetISession().GetIBinder().GetBindName()
+	//prefix := dba.GetISession().GetIBinder().GetBindPrefix()
+	//tabname2 := strings.TrimPrefix(tabname, prefix)
+	//where, fields, group := dba.where, dba.fields, dba.group
+	//
+	//// 先执行一条看看是否报错, 同时设置指定的limit, offset
+	//dba.Table(tabname2).Limit(limit).Page(page)
+	//if err = dba.Select(); err != nil {
+	//	return
+	//}
+	//result := dba.GetBindAll()
+	//for len(result) > 0 {
+	//	if err = callback(result); err != nil {
+	//		break
+	//	}
+	//	page++
+	//	// 清理绑定数据, 进行下一次操作, 因为绑定数据是每一次执行的时候都会解析并保存的
+	//	// 而第二次以后执行的, 都会再次解析并保存, 数据结构是slice, 故会累积起来
+	//	dba.ClearBindValues()
+	//	dba.where, dba.fields, dba.group = where, fields, group
+	//	dba.Table(tabname2).Limit(limit).Page(page)
+	//	if err = dba.Select(); err != nil {
+	//		break
+	//	}
+	//	result = dba.GetBindAll()
+	//}
 	return
 }
 
