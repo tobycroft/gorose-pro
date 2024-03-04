@@ -181,5 +181,6 @@ panic(err.Error())
 
 ## Stargazers over time
 
-[![Stargazers over time](https://starchart.cc/tobycroft/gorose-pro.svg)](https://starchart.cc/tobycroft/gorose-pro)
+[![Stargazers over time](https://starchart.cc/tobycroft/gorose-pro.svg?variant=adaptive)](https://starchart.cc/tobycroft/gorose-pro)
+
 
