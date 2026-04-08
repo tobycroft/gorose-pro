@@ -36,7 +36,8 @@
 - SubQuery: Highly security parameterized query under prepared condition
 - SubWhere: Full Prepared condition parameterized where sql searching
 - Fixed original framework's Executor might have unintentionally error or deleted data
-- Oracle support "Replace()" function like MyBatis when a good performance
+- Oracle support "Replace()" function like MyBatis when a good performance 
+- DataStruct avoid null insert or lost insert column when using []Struct
 
 ## Purpose of this project
 
