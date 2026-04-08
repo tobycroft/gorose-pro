@@ -2,7 +2,6 @@ package gorose
 
 import (
 	"fmt"
-	"github.com/gohouse/t"
 	"log"
 	"math/rand"
 	"os"
@@ -11,6 +10,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/gohouse/t"
 )
 
 func getRandomInt(num int) int {
@@ -35,7 +36,7 @@ func structForScan(u interface{}) []interface{} {
 	return v
 }
 
-// StructToMap ...
+// StructToMap this will be deprecated after v1.15.0 please use StructToMapV2
 func StructToMap(obj interface{}) map[string]interface{} {
 	ty := reflect.TypeOf(obj)
 	v := reflect.ValueOf(obj)

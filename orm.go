@@ -1,8 +1,9 @@
 package gorose
 
 import (
-	"github.com/gohouse/t"
 	"strings"
+
+	"github.com/gohouse/t"
 )
 
 // type TransactionHandlerFunc func(db IOrm) error
@@ -127,6 +128,12 @@ func (dba *Orm) Distinct() IOrm {
 // Data : insert or update data
 func (dba *Orm) Data(data interface{}) IOrm {
 	dba.data = data
+	return dba
+}
+
+// DataStruct : 这是用来注入带有0值的struct的，是将Struct变成Map后传入，插入语句中默认的0值也将被插入（原版这个字段会没掉），详情看Pro版Wiki
+func (dba *Orm) DataStruct(data any) IOrm {
+	dba.data = StructToMapSlices(data)
 	return dba
 }
 
