@@ -8,7 +8,7 @@ import (
 // 版本1：返回 []map[string]interface{}
 // 支持：struct/*struct/[]struct/[]*struct
 // ========================
-func StructToMapSlices(data any) []map[string]any {
+func StructToMapSlices(data interface{}) []map[string]interface{} {
 	if data == nil {
 		return nil
 	}
@@ -22,7 +22,7 @@ func StructToMapSlices(data any) []map[string]any {
 // 支持：struct/*struct
 // 就是原版
 // ========================
-func StructToMapV2(data any) map[string]any {
+func StructToMapV2(data interface{}) map[string]interface{} {
 	if data == nil {
 		return nil
 	}
