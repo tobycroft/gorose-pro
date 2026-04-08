@@ -42,6 +42,7 @@
 - (*Pro)PagiantorWG高性能多线程分页器[性能指示](./doc/performance/PaginatorWG.md)
 - (*Pro)修复Executor可能导致故障或删除据的问题
 - (*Pro)Oracle数据库支持Replace()方法
+- (*Pro)增加DataStruct避免使用[]Struct的情况下默认字段导致insert null或者直接诶丢字段的问题
 
 ## 为什么要使用本项目？
 
