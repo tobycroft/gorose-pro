@@ -18,6 +18,7 @@ type IOrm interface {
 	// distinct 方法允许你强制查询返回不重复的结果集：
 	Distinct() IOrm
 	Data(data interface{}) IOrm
+	DataStruct(data any) IOrm
 	// groupBy, orderBy, having
 	Group(group string) IOrm
 	GroupBy(group string) IOrm
