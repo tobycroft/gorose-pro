@@ -19,6 +19,7 @@ type IOrm interface {
 	Distinct() IOrm
 	Data(data interface{}) IOrm
 	DataStruct(data interface{}) IOrm
+	DataStructStrict(data interface{}) IOrm
 	// groupBy, orderBy, having
 	Group(group string) IOrm
 	GroupBy(group string) IOrm

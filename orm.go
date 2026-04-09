@@ -137,6 +137,12 @@ func (dba *Orm) DataStruct(data interface{}) IOrm {
 	return dba
 }
 
+// DataStructStrict : 这是在DataStruct基础上加入的基于tag判断的输入项，如果没有对应标签例如默认的gorose标签则不会解析
+func (dba *Orm) DataStructStrict(data interface{}) IOrm {
+	dba.data = StructToMapStrictSlices(data)
+	return dba
+}
+
 // Group : select group by
 func (dba *Orm) Group(group string) IOrm {
 	dba.group = group
