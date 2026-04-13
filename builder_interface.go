@@ -23,7 +23,8 @@ type FieldQuotesDefault struct {
 }
 
 func (FieldQuotesDefault) AddFieldQuotes(field string) string {
-	reg := regexp.MustCompile(`^\w+$`)
+	// 修复：支持字母、数字、下划线、横杠 -
+	reg := regexp.MustCompile(`^[\w-]+$`)
 	if reg.MatchString(field) {
 		return fmt.Sprintf("`%s`", field)
 	}
@@ -31,7 +32,8 @@ func (FieldQuotesDefault) AddFieldQuotes(field string) string {
 }
 
 func (FieldQuotesDefault) AddFieldQuotesOracle(field string) string {
-	reg := regexp.MustCompile(`^\w+$`)
+	// 修复：支持字母、数字、下划线、横杠 -
+	reg := regexp.MustCompile(`^[\w-]+$`)
 	if reg.MatchString(field) {
 		return fmt.Sprintf("\"%s\"", field)
 	}
