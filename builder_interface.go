@@ -19,22 +19,23 @@ type IFieldQuotes interface {
 	AddFieldQuotes(field string) string
 }
 
+// 全局预编译正则: 只初始化一次, 性能提升巨大!!!
+var fieldReg = regexp.MustCompile(`^[\w-]+$`)
+
 type FieldQuotesDefault struct {
 }
 
 func (FieldQuotesDefault) AddFieldQuotes(field string) string {
-	// 修复：支持字母、数字、下划线、横杠 -
-	reg := regexp.MustCompile(`^[\w-]+$`)
-	if reg.MatchString(field) {
+	// 直接使用全局编译好的正则, 不再重复编译
+	if fieldReg.MatchString(field) {
 		return fmt.Sprintf("`%s`", field)
 	}
 	return field
 }
 
 func (FieldQuotesDefault) AddFieldQuotesOracle(field string) string {
-	// 修复：支持字母、数字、下划线、横杠 -
-	reg := regexp.MustCompile(`^[\w-]+$`)
-	if reg.MatchString(field) {
+	// 共用同一个正则规则
+	if fieldReg.MatchString(field) {
 		return fmt.Sprintf("\"%s\"", field)
 	}
 	return field
