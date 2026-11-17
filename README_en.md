@@ -1,4 +1,4 @@
-# GoRose-ORM-Pro A Free Go MySQL ORM
+# GoRose-ORM-Pro A Free Go ORM
 
 [![GoDoc](https://godoc.org/github.com/tobycroft/gorose-pro?status.svg)](https://godoc.org/github.com/tobycroft/gorose-pro)
 [![Go Report Card](https://goreportcard.com/badge/github.com/tobycroft/gorose-pro)](https://goreportcard.com/report/github.com/tobycroft/gorose-pro)
@@ -19,134 +19,205 @@
  ╚═════╝  ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚══════╝    ╚═╝     ╚═╝  ╚═╝ ╚═════╝ 
 ~~~
 
-## What the difference between this than the OriginalVer.
+> Totally free · 100% compatible with the original · Built for complex commercial projects
 
-- All functionality was updated to the latest version from the original version
-- Intuition Coding
-- Nested Transactions functionality
-- Simple update without any hesitation ,fully compatible with earlier versions
-- Fully support MySQL and MariaDB
-- Document support as detail as possible
-- 100% compatible with original function
-- Dealing PR & Bug fix much more sooner
-- All function has been tested and verified by commercial projects
-- Support complexity and/or sql in Where/OrWhere function
-- Paginator is now able to return the correct TOTAL number
-- Add CountGroup to return correct row count from sql sentence
-- SubQuery: Highly security parameterized query under prepared condition
-- SubWhere: Full Prepared condition parameterized where sql searching
-- Fixed original framework's Executor might have unintentionally error or deleted data
-- Oracle support "Replace()" function like MyBatis when a good performance 
-- DataStruct avoid null insert or lost insert column when using []Struct
+[中文文档](./README.md) · [Version Differences](#version-differences) · [Documentation](#documentation-wiki) · [Commercial Validation](#commercial-validation)
 
-## Purpose of this project
+## Version Differences
 
-- Fee: Totally Free but only need your star
-- Avoid the risk of the deprecation of the original ver
-- To solve the shortage during coding in the real life
-- Massive demos from the document, what ever the skill you are, you still able to find a solution here
+> `100% compatible` · `nested transactions` · `complex queries` · `high-performance pagination` · `commercially validated`
 
-## Bug Fix
+<details>
+<summary>Expand for full differences</summary>
 
-- Dirty Read under concurrency circumstances(this will be only and easily triggered by using *db mode)
-- Paginate fixed, this function finally come back to life, new "Paginator" function make it much more easier to use
-- Fix the row_count(Total in Paginator mode) when using GroupBy function
-- Fix Oracle unable to connect & use problem, Fixed arm MacM1 chip's compatibility with Oracle
+### Compatibility & maintenance
 
-## Docs and Demos（Wiki）
+- [x] 100% compatible with the original version; upgrade smoothly with `go get -u` while keeping upward and downward compatibility
+- [x] Includes all updates and bug fixes from the original project, plus issues reported but not yet fixed there
+- [x] Uses `v1` tags only; future refactors will be released as separate projects, so no major-version compatibility concerns
+- [x] Friendly to ThinkPHP / Laravel developers, supporting both procedural and object-oriented development
+- [x] Deeper support for MySQL and MariaDB
 
-Notice:'*' means Only Support In GorosePro
+### Pro-only capabilities
 
-- CUD functions
-    - [Insert](../../wiki/Insert新增数据)
-    - [Delete](../../wiki/Delete删除数据)
-    - [Update](../../wiki/Update方法)
-    - *[Replace](../../wiki/Replace方法)
-- Read the first line data and return in map[string]any
-    - [Find/First](../../wiki/Find-First查询返回Obj对象方法)
-- Read multiple data in array by []map[string]any
-    - [Get/Select](../../wiki/Get-Select方法)
-    - [Join](../../wiki/Join-Select方法)
-    - *[Paginator](../../wiki/Paginator复杂的子查询分页构建)
-    - *[Paginator in HighPerformant](../../wiki/PaginatorWG多线程分页)
-- Raw SQL sentence mode
-    - [Query](../../wiki/Query方法)
-- Nested Transaction(only support in GorosePro)
-    - *[Demos](../../wiki/支付环境下复杂的嵌套事务)
-- subQuery
-    - *[SubSql](../../wiki/SubQuery安全子查询)
-    - *[SubWhere](../../wiki/SubWhere安全子查询)
-- Security and Performance
-    - [Paginator-Performance-by-ChatGPT](../../wiki/Paginator分页查询的性能问题-ChatGPT )
-- Single/Multiple data to struct（Struct）
-    - *[Scan方法](../../wiki/Scan将结果独立输出到struct)
+- [x] **Nested transactions**: multi-level rollback across module boundaries
+- [x] **Complex Where / OrWhere**: reliable `AND` / `OR` grouping for complex conditions
+- [x] **Correct aggregate pagination**: `CountGroup` returns the correct row count with `GroupBy`
+- [x] **SubQuery**: safe, chainable, parameterized `FROM (subquery)` queries
+- [x] **SubWhere**: safe, chainable, parameterized `WHERE field IN/=/LIKE ... (subquery)` queries
+- [x] **PaginatorWG**: high-performance multithreaded paginator, see [performance notes](./doc/performance/PaginatorWG.md)
+- [x] **Replace()**: Oracle support for the `Replace()` method
+- [x] **DataStruct**: prevents `NULL` inserts or missing columns caused by default values in `[]Struct`
+- [x] Fixes incorrect results returned by the original `Paginator`
+- [x] Fixes issues where the original `Executor` could fail or delete data unexpectedly
 
-## Introduction
+</details>
 
-Gorosepro is an upgrade and revision project of GOORM. It fixes bugs on the basis of supporting all functions of the
-original
-framework and is more suitable for complex commercial projects
+## Commercial Validation
 
-Support decoupling development and intuitive programming, greatly reduce your trial and error cost, make small projects
-develop faster, and make large projects easier to maintain
+| Database | Validated versions / environments | Status |
+| --- | --- | :---: |
+| MySQL | All versions; AliYun RDS MySQL 8; BT 8.0.11, 8.0.34+ | ✅ |
+| MariaDB | All versions; BT 10.5, 10.7; 10.10 | ✅ |
+| Oracle | 12XE | ✅ |
 
-## Installation
+<details>
+<summary>View project background and stability notes</summary>
 
-- Add in go.mod
+- Project support window: `2021-10` ~ `2028-8`
+- Totally free — a Star is all we ask for
+- Used in finance, payment, e-commerce, education, and government projects
+- Created because the original version lacked features needed by commercial projects and is no longer maintained
+- The original transaction design is cumbersome across modules and lacks multi-level rollback, making it risky for order and payment workflows
+- The original version leads to verbose code for complex requirements; Pro supports both procedural and object-oriented styles
+
+</details>
+
+## Why GoRose-ORM-Pro?
+
+<details>
+<summary>Expand to learn more</summary>
+
+GorosePro is an upgraded revision of Gorose ORM. It fixes multiple issues while retaining full support for the original framework, making it more suitable for complex commercial projects.
+
+It supports decoupled development and intuitive programming, significantly reducing trial-and-error costs: smaller projects can move faster, while larger projects stay easier to maintain.
+
+</details>
+
+## Quick Start
 
 ```bash
-require github.com/tobycroft/gorose-pro v1.2.5
+go get -u github.com/tobycroft/gorose-pro@latest
 ```
 
-- go get
-
-```bash
-go get -u github.com/tobycroft/gorose-pro
-```
-
-## Driver support
-
-- mysql : https://github.com/go-sql-driver/mysql
-- sqlite3 : https://github.com/mattn/go-sqlite3
-- postgres : https://github.com/lib/pq
-- oracle : https://github.com/sijms/go-ora
-- mssql : https://github.com/denisenkom/go-mssqldb
-- clickhouse : https://github.com/kshvakov/clickhouse
-
-## Initializing
-
-- [MySQL initializing](../../wiki/初始化方法MySQL)
-- [Oracle initializing](../../wiki/初始化方法Oracle)
-
-For more configurations, you can configure the cluster, or even configure different databases at the same time. In a
-cluster, the database will randomly select the database of the cluster to complete the corresponding read-write
-operations. The master is the write database, and the slave is the read database. You need to do master-slave
-replication. Here, you are only responsible for reading and writing
+Or pin a version in `go.mod`:
 
 ```go
-var config1 = gorose.Config{Dsn: 上面的dsn}
-var config2 = gorose.Config{Dsn:  上面的dsn}
-var config3 = gorose.Config{Dsn:  上面的dsn}
-var config4 = gorose.Config{Dsn:  上面的dsn}
-var configCluster = &gorose.ConfigCluster{
-Master:  []gorose.Config{config3, config4},
-Slave: []gorose.Config{config1, config2},
-Driver: "sqlite3",
-}
+require github.com/tobycroft/gorose-pro v1.16.4
 ```
 
-Initialize then use
+## Documentation (Wiki)
+
+> `*` indicates a GorosePro-only feature.
+
+<details>
+<summary>Expand all documentation links</summary>
+
+### Create, update, delete
+
+- [Insert](../../wiki/Insert新增数据)
+- [Delete](../../wiki/Delete删除数据)
+- [Update](../../wiki/Update方法)
+- *[Replace](../../wiki/Replace方法)
+
+### Query
+
+- [Find / First: return one object](../../wiki/Find-First查询返回Obj对象方法)
+- [Get / Select: return a slice](../../wiki/Get-Select方法)
+- [Join](../../wiki/Join-Select方法)
+- [Query: raw SQL](../../wiki/Query方法)
+- *[Paginator: complex subquery pagination](../../wiki/Paginator复杂的子查询分页构建)
+- *[PaginatorWG: high-performance pagination](../../wiki/PaginatorWG多线程分页)
+
+### Transactions & subqueries
+
+- *[Complex nested transactions in payment scenarios](../../wiki/支付环境下复杂的嵌套事务)
+- *[SubQuery: injection-safe FROM subquery](../../wiki/SubQuery安全子查询)
+- *[SubWhere: injection-safe WHERE subquery](../../wiki/SubWhere安全子查询)
+
+### Structs & performance
+
+- *[Scan results into a struct](../../wiki/Scan将结果独立输出到struct)
+- [Chunk: read data in batches](../../wiki/Chunk分块数据读取)
+- *[ChunkWG: high-performance batched reads](../../wiki/Chunk分块数据读取)
+- [Paginator performance analysis](../../wiki/Paginator分页查询的性能问题-ChatGPT )
+
+</details>
+
+## Bug Fixes (not fixed in the original)
+
+<details>
+<summary>Expand to view</summary>
+
+- Fixed dirty parameter data for `Where` and related operations under high concurrency; avoid single-DB mode in production with the original version
+- Fixed the unusable `Paginate` function and added `Paginator` plus the multithreaded `PaginatorWG`
+- Fixed incorrect totals when `Count` and `GroupBy` are used together
+- Added `Counts` for compatibility and fixed inaccurate counts in complex scenarios in the original version
+- Replaced the Oracle driver to fix the original Oracle connectivity issue and support direct connections on M1 and later ARM chips
+
+</details>
+
+## Driver Support
+
+<details>
+<summary>Expand to view supported drivers</summary>
+
+| Driver | Repository |
+| --- | --- |
+| MySQL | https://github.com/go-sql-driver/mysql |
+| SQLite3 | https://github.com/mattn/go-sqlite3 |
+| PostgreSQL | https://github.com/lib/pq |
+| Oracle | https://github.com/sijms/go-ora |
+| MSSQL | https://github.com/denisenkom/go-mssqldb |
+| ClickHouse | https://github.com/kshvakov/clickhouse |
+
+</details>
+
+## Configuration & Initialization
+
+<details>
+<summary>Expand for cluster configuration examples</summary>
+
+- [MySQL initialization](../../wiki/初始化方法MySQL)
+- [Oracle initialization](../../wiki/初始化方法Oracle)
+
+Clusters can be configured with different databases in the same cluster. A cluster randomly selects a node for read or write operations: `Master` nodes handle writes and `Slave` nodes handle reads. Master-slave replication must be configured separately; GorosePro only handles read/write routing.
+
+```go
+var config1 = gorose.Config{Dsn: "dsn1"}
+var config2 = gorose.Config{Dsn: "dsn2"}
+var config3 = gorose.Config{Dsn: "dsn3"}
+var config4 = gorose.Config{Dsn: "dsn4"}
+
+var configCluster = &gorose.ConfigCluster{
+    Master: []gorose.Config{config3, config4},
+    Slave:  []gorose.Config{config1, config2},
+    Driver: "sqlite3",
+}
+```
 
 ```go
 var engin *gorose.Engin
 engin, err := Open(config)
-//engin, err := Open(configCluster)
+// engin, err := Open(configCluster)
 
 if err != nil {
-panic(err.Error())
+    panic(err.Error())
 }
 ```
 
+</details>
+
+## TODO
+
+<details>
+<summary>Expand to view</summary>
+
+- Add a caching layer
+  - Without a Struct receiver, Redis Hash column types may all become strings
+  - Avoiding type assertions after caching is enabled is the simpler approach; storing types in Redis also works but increases Redis connection load
+- Optional generic returns (done)
+- ElasticSearch
+  - Automatic data upload
+  - Read data from ES
+
+</details>
+
 ## Stargazers over time
 
+<details>
+<summary>Expand to view the star chart</summary>
+
 [![Stargazers over time](https://starchart.cc/tobycroft/gorose-pro.svg)](https://starchart.cc/tobycroft/gorose-pro)
+
+</details>
