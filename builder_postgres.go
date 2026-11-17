@@ -1,10 +1,5 @@
 package gorose
 
-import (
-	"fmt"
-	"regexp"
-)
-
 const (
 	// DriverPostgres ...
 	DriverPostgres = "postgres"
@@ -46,9 +41,9 @@ func (b *BuilderPostgres) BuildExecute(o IOrm, operType string) (sqlStr string, 
 }
 
 func (*BuilderPostgres) AddFieldQuotes(field string) string {
-	reg := regexp.MustCompile(`^\w+$`)
-	if reg.MatchString(field) {
-		return fmt.Sprintf(`"%s"`, field)
+	// 复用全局预编译正则, 避免每次调用都重新编译正则表达式
+	if fieldReg.MatchString(field) {
+		return `"` + field + `"`
 	}
 	return field
 }

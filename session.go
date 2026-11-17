@@ -206,6 +206,8 @@ func (s *Session) Query(sqlstring string, args ...interface{}) (result []Data, e
 	if s.err != nil {
 		err = s.err
 		s.GetIEngin().GetLogger().Error(err.Error())
+		// 之前的绑定解析出错, 直接返回, 不再执行查询
+		return
 	}
 	// 记录sqlLog
 	s.lastSql = fmt.Sprint(sqlstring, ", ", args)
@@ -213,21 +215,15 @@ func (s *Session) Query(sqlstring string, args ...interface{}) (result []Data, e
 	//	s.sqlLogs = append(s.sqlLogs, s.lastSql)
 	//}
 
-	var stmt *sql.Stmt
+	// 直接执行查询, 避免 Prepare+Close 带来的额外网络往返
+	var rows *sql.Rows
 	// 如果是事务, 则从主库中读写
 	if s.tx == nil {
-		stmt, err = s.slave.Prepare(sqlstring)
+		rows, err = s.slave.Query(sqlstring, args...)
 	} else {
-		stmt, err = s.tx.Prepare(sqlstring)
+		rows, err = s.tx.Query(sqlstring, args...)
 	}
 
-	if err != nil {
-		s.GetIEngin().GetLogger().Error(err.Error())
-		return
-	}
-
-	defer stmt.Close()
-	rows, err := stmt.Query(args...)
 	if err != nil {
 		s.GetIEngin().GetLogger().Error(err.Error())
 		return
@@ -267,6 +263,8 @@ func (s *Session) Execute(sqlstring string, args ...interface{}) (rowsAffected i
 	//withRunTimeContext(func() {
 	//	err = s.GetIBinder().BindParse(s.GetIEngin().GetPrefix())
 	if s.err != nil {
+		// 之前的绑定解析出错, 直接返回, 避免对 nil err 调用 Error() 引发 panic
+		err = s.err
 		s.GetIEngin().GetLogger().Error(err.Error())
 		return
 	}
@@ -283,21 +281,14 @@ func (s *Session) Execute(sqlstring string, args ...interface{}) (rowsAffected i
 		return
 	}
 
-	var stmt *sql.Stmt
+	// 直接执行, 避免 Prepare+Close 带来的额外网络往返
+	var result sql.Result
 	if s.tx == nil {
-		stmt, err = s.master.Prepare(sqlstring)
+		result, err = s.master.Exec(sqlstring, args...)
 	} else {
-		stmt, err = s.tx.Prepare(sqlstring)
+		result, err = s.tx.Exec(sqlstring, args...)
 	}
 
-	if err != nil {
-		s.GetIEngin().GetLogger().Error(err.Error())
-		return
-	}
-
-	//var err error
-	defer stmt.Close()
-	result, err := stmt.Exec(args...)
 	if err != nil {
 		s.GetIEngin().GetLogger().Error(err.Error())
 		return
@@ -370,6 +361,11 @@ func (s *Session) scanMapAll(rows *sql.Rows) (err error) {
 	}
 	count := len(columns)
 
+	// 反射操作提升到循环外, 避免在 行×列 的内层循环中重复执行
+	br := reflect.Indirect(reflect.ValueOf(s.GetBindResult()))
+	bindResultMapType := br.Type()
+	bindType := s.GetBindType()
+
 	for rows.Next() {
 		// 定义要绑定的结果集
 		values := make([]interface{}, count)
@@ -382,7 +378,7 @@ func (s *Session) scanMapAll(rows *sql.Rows) (err error) {
 
 		// 定义预设的绑定对象
 		//fmt.Println(reflect.TypeOf(s.GetBindResult()).Kind())
-		var bindResultTmp = reflect.MakeMap(reflect.Indirect(reflect.ValueOf(s.GetBindResult())).Type())
+		var bindResultTmp = reflect.MakeMap(bindResultMapType)
 		//// 定义union操作的map返回
 		//var unionTmp = map[string]interface{}{}
 		for i, col := range columns {
@@ -405,8 +401,7 @@ func (s *Session) scanMapAll(rows *sql.Rows) (err error) {
 				//unionTmp[col] = v
 				//s.union = unionTmp
 			} else {
-				br := reflect.Indirect(reflect.ValueOf(s.GetBindResult()))
-				switch s.GetBindType() {
+				switch bindType {
 				case OBJECT_MAP_T, OBJECT_MAP_SLICE_T: // t.T类型
 					// 绑定到一条数据结果对象上,方便其他地方的调用,永远存储最新一条
 					br.SetMapIndex(reflect.ValueOf(col), reflect.ValueOf(t.New(v)))
@@ -499,8 +494,8 @@ func (s *Session) scanAll(rows *sql.Rows) (err error) {
 		// 获取结果
 		_ = rows.Scan(scanArgs...)
 
-		// 定义预设的绑定对象
-		var resultTmp = Data{}
+		// 定义预设的绑定对象, 按列数预估容量
+		var resultTmp = make(Data, count)
 		//// 定义union操作的map返回
 		//var unionTmp = map[string]interface{}{}
 		for i, col := range columns {

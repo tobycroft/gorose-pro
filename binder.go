@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gohouse/t"
 	"reflect"
+	"sync"
 )
 
 // Map ...
@@ -15,15 +16,15 @@ type Data map[string]interface{}
 
 //Paginate
 type Paginate struct {
-	Total        int64       `json:"total",gorose:"total" :"total"`
-	PerPage      int         `json:"per_page",gorose:"per_page" :"per_page"`
-	CurrentPage  int         `json:"current_page",gorose:"current_page" :"current_page"`
-	LastPage     int         `json:"last_page",gorose:"last_page" :"last_page"`
-	FirstPageUrl int64       `json:"first_page_url",gorose:"first_page_url" :"first_page_url"`
-	LastPageUrl  int         `json:"last_page_url",gorose:"last_page_url" :"last_page_url"`
-	NextPageUrl  interface{} `json:"next_page_url",gorose:"next_page_url" :"next_page_url"`
-	PrevPageUrl  interface{} `json:"prev_page_url",gorose:"prev_page_url" :"prev_page_url"`
-	Data         []Data      `json:"data",gorose:"data" :"data"`
+	Total        int64       `json:"total" gorose:"total"`
+	PerPage      int         `json:"per_page" gorose:"per_page"`
+	CurrentPage  int         `json:"current_page" gorose:"current_page"`
+	LastPage     int         `json:"last_page" gorose:"last_page"`
+	FirstPageUrl int64       `json:"first_page_url" gorose:"first_page_url"`
+	LastPageUrl  int         `json:"last_page_url" gorose:"last_page_url"`
+	NextPageUrl  interface{} `json:"next_page_url" gorose:"next_page_url"`
+	PrevPageUrl  interface{} `json:"prev_page_url" gorose:"prev_page_url"`
+	Data         []Data      `json:"data" gorose:"data"`
 }
 
 // BindType ...
@@ -90,6 +91,25 @@ type Binder struct {
 
 var _ IBinder = &Binder{}
 
+// tableNameCache 缓存 TableName() 方法的反射解析结果, key 为 reflect.Type
+// 避免每次 Table()/Bind() 都执行 MethodByName + Call 的反射开销
+var tableNameCache sync.Map
+
+// getTableNameCached 通过缓存获取对象的 TableName() 方法结果
+func getTableNameCached(v reflect.Value) (string, bool) {
+	typ := v.Type()
+	if cached, ok := tableNameCache.Load(typ); ok {
+		return cached.(string), true
+	}
+	tn := v.MethodByName("TableName")
+	if !tn.IsValid() {
+		return "", false
+	}
+	name := tn.Call(nil)[0].String()
+	tableNameCache.Store(typ, name)
+	return name, true
+}
+
 // NewBinder ...
 func NewBinder(o ...interface{}) *Binder {
 	var binder = new(Binder)
@@ -133,13 +153,13 @@ func (o *Binder) BindParse(prefix string) error {
 			// 是否设置了表名
 			switch dstVal.Kind() {
 			case reflect.Ptr, reflect.Struct:
-				if tn := dstVal.MethodByName("TableName"); tn.IsValid() {
-					BindName = tn.Call(nil)[0].String()
+				if name, ok := getTableNameCached(dstVal); ok {
+					BindName = name
 				}
 			default:
 				return errors.New("传入的对象有误,示例:var user User,传入 &user{}")
 			}
-		case reflect.Map: // map
+			case reflect.Map: // map
 			o.SetBindType(OBJECT_MAP)
 			//// 默认只查一条
 			//o.SetBindLimit(1)
@@ -153,8 +173,8 @@ func (o *Binder) BindParse(prefix string) error {
 			if dstVal.Kind() != reflect.Ptr {
 				return errors.New("传入的不是map指针,如:var user gorose.Map,传入 &user{}")
 			}
-			if tn := dstVal.MethodByName("TableName"); tn.IsValid() {
-				BindName = tn.Call(nil)[0].String()
+			if tn, ok := getTableNameCached(dstVal); ok {
+				BindName = tn
 			}
 
 		case reflect.Slice: // []struct,[]map
@@ -175,8 +195,8 @@ func (o *Binder) BindParse(prefix string) error {
 				}
 				// 检查设置表名
 				r2val := reflect.New(eltType)
-				if tn := r2val.MethodByName("TableName"); tn.IsValid() {
-					BindName = tn.Call(nil)[0].String()
+				if tn, ok := getTableNameCached(r2val); ok {
+					BindName = tn
 				}
 
 			case reflect.Struct:
@@ -191,8 +211,8 @@ func (o *Binder) BindParse(prefix string) error {
 				// 是否设置了表名
 				switch dstVal.Kind() {
 				case reflect.Ptr, reflect.Struct:
-					if tn := br.MethodByName("TableName"); tn.IsValid() {
-						BindName = tn.Call(nil)[0].String()
+					if tn, ok := getTableNameCached(br); ok {
+						BindName = tn
 					}
 				default:
 					return errors.New("传入的对象有误,示例:var user User,传入 &user{}")
@@ -201,10 +221,10 @@ func (o *Binder) BindParse(prefix string) error {
 				return fmt.Errorf("table只接收 struct,[]struct,map[string]interface{},[]map[string]interface{}的对象和地址, 但是传入的是: %T", o.GetBindOrigin())
 			}
 			// 是否设置了表名
-			if tn := dstVal.MethodByName("TableName"); tn.IsValid() {
-				BindName = tn.Call(nil)[0].String()
+			if tn, ok := getTableNameCached(dstVal); ok {
+				BindName = tn
 			}
-		default:
+			default:
 			return fmt.Errorf("table只接收 struct,[]struct,map[string]interface{},[]map[string]interface{}, 但是传入的是: %T", o.GetBindOrigin())
 		}
 	}
@@ -216,7 +236,7 @@ func (o *Binder) BindParse(prefix string) error {
 
 func (o *Binder) parseFields() {
 	if len(o.GetBindFields()) == 0 {
-		o.SetBindFields(getTagName(o.GetBindResult(), TAGNAME))
+		o.SetBindFields(getTagName(o.GetBindResult(), getTagname()))
 	}
 }
 

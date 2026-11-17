@@ -2,6 +2,9 @@ package gorose
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"sync"
 	"time"
 )
 
@@ -46,6 +49,10 @@ type Logger struct {
 	slowLog  float64
 	//infoLog  bool
 	errLog bool
+	// mu 保护 logFiles 的并发写入
+	mu sync.Mutex
+	// logFiles 缓存已打开的日志文件句柄, 避免每条日志都 Open/Close
+	logFiles map[string]*os.File
 }
 
 var _ ILogger = (*Logger)(nil)
@@ -92,21 +99,21 @@ func (l *Logger) EnableSlowLog() float64 {
 // Slow ...
 func (l *Logger) Slow(sqlStr string, runtime time.Duration) {
 	if l.EnableSlowLog() > 0 && runtime.Seconds() > l.EnableSlowLog() {
-		logger.write(LOG_SLOW, "gorose_slow", sqlStr, runtime.String())
+		l.write(LOG_SLOW, "gorose_slow", sqlStr, runtime.String())
 	}
 }
 
 // Sql ...
 func (l *Logger) Sql(sqlStr string, runtime time.Duration) {
 	if l.EnableSqlLog() {
-		logger.write(LOG_SQL, "gorose_sql", sqlStr, runtime.String())
+		l.write(LOG_SQL, "gorose_sql", sqlStr, runtime.String())
 	}
 }
 
 // Error ...
 func (l *Logger) Error(msg string) {
 	if l.EnableErrorLog() {
-		logger.write(LOG_ERROR, "gorose", msg, "0")
+		l.write(LOG_ERROR, "gorose", msg, "0")
 	}
 }
 
@@ -114,11 +121,22 @@ func (l *Logger) write(ll LogLevel, filename string, msg string, runtime string)
 	now := time.Now()
 	date := now.Format("20060102")
 	datetime := now.Format("2006-01-02 15:04:05")
-	f := readFile(fmt.Sprintf("%s/%v_%v.log", l.filePath, date, filename))
 	content := fmt.Sprintf("[%v] [%v] %v --- %v\n", ll.String(), datetime, runtime, msg)
-	withLockContext(func() {
-		defer f.Close()
-		buf := []byte(content)
-		f.Write(buf)
-	})
+
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	key := fmt.Sprintf("%s/%v_%v.log", l.filePath, date, filename)
+	f, ok := l.logFiles[key]
+	if !ok {
+		f = readFile(key)
+		if f == nil {
+			log.Println("gorose: 打开日志文件失败:", key)
+			return
+		}
+		if l.logFiles == nil {
+			l.logFiles = make(map[string]*os.File)
+		}
+		l.logFiles[key] = f
+	}
+	_, _ = f.WriteString(content)
 }

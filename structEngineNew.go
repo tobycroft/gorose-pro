@@ -128,7 +128,7 @@ func parseStructWithDefault(val reflect.Value) map[string]interface{} {
 			continue
 		}
 
-		tag := field.Tag.Get(TAGNAME)
+		tag := field.Tag.Get(getTagname())
 		if tag == "ignore" {
 			continue
 		}
@@ -160,7 +160,7 @@ func parseStructStrict(val reflect.Value) map[string]interface{} {
 			continue
 		}
 
-		tag := field.Tag.Get(TAGNAME)
+		tag := field.Tag.Get(getTagname())
 
 		// 🔥 无tag 或 ignore → 跳过
 		if tag == "" || tag == "ignore" {

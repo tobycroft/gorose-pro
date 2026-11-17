@@ -64,11 +64,9 @@ func (b *BuilderDefault) GetBindValues() []interface{} {
 func (b *BuilderDefault) GetPlaceholder() (phstr string) {
 	switch b.driver {
 	case "postgres":
-		withLockContext(func() {
-			ph := b.placeholder + 1
-			phstr = fmt.Sprintf("$%v", ph)
-			b.placeholder = ph
-		})
+		// builder 为单次构建的临时对象, 无并发访问, 无需加锁
+		b.placeholder++
+		phstr = "$" + strconv.Itoa(b.placeholder)
 	default:
 		phstr = "?"
 	}
@@ -96,9 +94,9 @@ func (b *BuilderDefault) BuildQuery() (sqlStr string, args []interface{}, err er
 		return
 	}
 	//fmt.Println("kggs3", args)
-	sqlStr = fmt.Sprintf("SELECT %s%s FROM %s%s%s%s%s%s%s%s",
-		b.BuildDistinct(), b.BuildFields(), b.BuildTable(), join, where,
-		b.BuildGroup(), b.BuildHaving(), b.BuildOrder(), b.BuildLimit(), b.BuildOffset())
+	// 直接字符串拼接, 避免热路径上 fmt.Sprintf 的反射开销
+	sqlStr = "SELECT " + b.BuildDistinct() + b.BuildFields() + " FROM " + b.BuildTable() + join + where +
+		b.BuildGroup() + b.BuildHaving() + b.BuildOrder() + b.BuildLimit() + b.BuildOffset()
 
 	//args = b.bindParams
 	args = b.GetBindValues()
@@ -129,11 +127,9 @@ func (b *BuilderDefault) BuildExecute(operType string) (sqlStr string, args []in
 	var where string
 	switch operType {
 	case "insert":
-		sqlStr = fmt.Sprintf("INSERT INTO %s (%s) VALUES %s", b.BuildTable(), insertkey, insertval)
-		break
+		sqlStr = "INSERT INTO " + b.BuildTable() + " (" + insertkey + ") VALUES " + insertval
 	case "replace":
-		sqlStr = fmt.Sprintf("REPLACE INTO %s (%s) VALUES %s", b.BuildTable(), insertkey, insertval)
-		break
+		sqlStr = "REPLACE INTO " + b.BuildTable() + " (" + insertkey + ") VALUES " + insertval
 	case "update":
 		where, err = b.BuildWhere()
 		if err != nil {
@@ -145,8 +141,7 @@ func (b *BuilderDefault) BuildExecute(operType string) (sqlStr string, args []in
 			b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
 			return
 		}
-		sqlStr = fmt.Sprintf("UPDATE %s SET %s%s", b.BuildTable(), update, where)
-		break
+		sqlStr = "UPDATE " + b.BuildTable() + " SET " + update + where
 	case "delete":
 		where, err = b.BuildWhere()
 		if err != nil {
@@ -158,8 +153,7 @@ func (b *BuilderDefault) BuildExecute(operType string) (sqlStr string, args []in
 			b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
 			return
 		}
-		sqlStr = fmt.Sprintf("DELETE FROM %s%s", b.BuildTable(), where)
-		break
+		sqlStr = "DELETE FROM " + b.BuildTable() + where
 	}
 
 	args = b.GetBindValues()
@@ -200,15 +194,14 @@ func (b *BuilderDefault) BuildData2(operType string) (string, string, string) {
 
 	data := b.IOrm.GetData()
 
-	switch data.(type) {
+	switch data := data.(type) {
 	case string:
-		dataObj = append(dataObj, data.(string))
+		dataObj = append(dataObj, data)
 	case []map[string]interface{}, []Data: // insert multi datas ([]map[string]interface{})
 		sliceData := t.New(data).Slice()
+		// map 遍历的 key 天然唯一, 直接收集即可
 		for key := range sliceData[0].MapStringT() {
-			if inArray(key, dataFields) == false {
-				dataFields = append(dataFields, key)
-			}
+			dataFields = append(dataFields, key)
 		}
 		for _, itemt := range sliceData {
 			item := itemt.MapStringT()
@@ -279,10 +272,9 @@ func (b *BuilderDefault) parseData(operType string, data []map[string]interface{
 		return "", "", ""
 	}
 
+	// map 遍历的 key 天然唯一, 直接收集即可, 避免反射版 inArray 的 O(n^2) 去重
 	for key := range data[0] {
-		if inArray(key, insertFields) == false {
-			insertFields = append(insertFields, key)
-		}
+		insertFields = append(insertFields, key)
 	}
 	for _, item := range data {
 		// 定义插入1条数据的存储
@@ -304,9 +296,8 @@ func (b *BuilderDefault) parseData(operType string, data []map[string]interface{
 				// 保存真正的值
 				b.SetBindValues(item[key])
 			}
-			//insertValues = append(insertValues, "("+strings.Join(insertValuesSub, ",")+")")
 			// update
-			dataObj = append(dataObj, fmt.Sprintf("%s = %s", b.current.AddFieldQuotes(key), placeholder))
+			dataObj = append(dataObj, b.current.AddFieldQuotes(key)+" = "+placeholder)
 		}
 		insertValues = append(insertValues, "("+strings.Join(insertValuesSub, ",")+")")
 	}
@@ -516,18 +507,14 @@ func (b *BuilderDefault) parseWhere(ormApi IOrm) (string, error) {
 						switch condition {
 						case "andor":
 							where = append(where, "and ("+strings.Join(whereArr, " or ")+")")
-							break
 
 						case "orand":
 							where = append(where, "or ("+strings.Join(whereArr, " and ")+")")
-							break
 
 						default:
 							where = append(where, condition+" ("+strings.Join(whereArr, " "+condition+" ")+")")
-							break
 						}
 					}
-					break
 
 				default:
 					var whereArr []string
@@ -602,7 +589,7 @@ func (b *BuilderDefault) parseWhere(ormApi IOrm) (string, error) {
  * example: {"id",">",1}, {"age", 18}
  */
 // parseParams : 将where条件中的参数转换为where条件字符串
-func (b *BuilderDefault) parseParams(args []interface{}, ormApi IOrm) (s string, err error) {
+func (b *BuilderDefault) parseParams(args []interface{}, _ IOrm) (s string, err error) {
 	paramsLength := len(args)
 	argsReal := args
 
@@ -645,8 +632,8 @@ func (b *BuilderDefault) parseParams(args []interface{}, ormApi IOrm) (s string,
 		//	paramsToArr = append(paramsToArr, b.GetPlaceholder())
 		//	b.SetBindValues(argsReal[2])
 		case "in", "not in":
-			var tmp []string
 			var ar2 = t.New(argsReal[2]).Slice()
+			tmp := make([]string, 0, len(ar2))
 			for _, item := range ar2 {
 				tmp = append(tmp, b.GetPlaceholder())
 				b.SetBindValues(t.New(item).Interface())

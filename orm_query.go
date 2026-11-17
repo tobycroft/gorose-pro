@@ -38,7 +38,7 @@ func (dba *Orm) Scan(scan_to_struct interface{}) error {
 		dba.GetIBinder().SetBindType(OBJECT_STRUCT)
 		dba.GetIBinder().SetBindResult(scan_to_struct)
 		if len(dba.GetIBinder().GetBindFields()) == 0 {
-			dba.GetIBinder().SetBindFields(getTagName(dba.GetIBinder().GetBindResult(), TAGNAME))
+			dba.GetIBinder().SetBindFields(getTagName(dba.GetIBinder().GetBindResult(), getTagname()))
 		}
 		switch dstVal.Kind() {
 		case reflect.Ptr, reflect.Struct:
@@ -62,7 +62,7 @@ func (dba *Orm) Scan(scan_to_struct interface{}) error {
 			dba.GetIBinder().SetBindResult(br.Interface())
 			dba.GetIBinder().SetBindResultSlice(sliceVal)
 			if len(dba.GetIBinder().GetBindFields()) == 0 {
-				dba.GetIBinder().SetBindFields(getTagName(dba.GetIBinder().GetBindResult(), TAGNAME))
+				dba.GetIBinder().SetBindFields(getTagName(dba.GetIBinder().GetBindResult(), getTagname()))
 			}
 			switch dstVal.Kind() {
 			case reflect.Ptr, reflect.Struct:
@@ -230,14 +230,15 @@ func (dba *Orm) _unionBuild(union, field string) (interface{}, error) {
 
 // Pluck 获取一列数据, 第二个字段可以指定另一个字段的值作为这一列数据的key
 func (dba *Orm) Pluck(field string, fieldKey ...string) (v interface{}, err error) {
-	var resMap = make(map[interface{}]interface{}, 0)
-	var resSlice = make([]interface{}, 0)
-
 	res, err := dba.Get()
 
 	if err != nil {
 		return
 	}
+
+	// 按已知结果集行数预分配容量, 避免 append 反复扩容
+	var resMap = make(map[interface{}]interface{}, len(res))
+	var resSlice = make([]interface{}, 0, len(res))
 
 	if len(res) > 0 {
 		for _, val := range res {
@@ -377,9 +378,9 @@ func (dba *Orm) Value_bak(field string) (v interface{}, err error) {
 func (dba *Orm) _valueFromStruct(bindResult reflect.Value, field string) (v interface{}) {
 	ostype := bindResult.Type()
 	for i := 0; i < ostype.NumField(); i++ {
-		tag := ostype.Field(i).Tag.Get(TAGNAME)
+		tag := ostype.Field(i).Tag.Get(getTagname())
 		if tag == field || ostype.Field(i).Name == field {
-			v = bindResult.FieldByName(ostype.Field(i).Name).Interface()
+			return bindResult.FieldByName(ostype.Field(i).Name).Interface()
 		}
 	}
 	return
@@ -446,7 +447,12 @@ func (dba *Orm) ChunkWG(onetime_exec_thread int, limit int, callback func([]Data
 	}
 	continue_run := true
 	for continue_run {
-		var mp sync.Map
+		// 使用有序 slice 代替 sync.Map, 修复杂乱遍历顺序与相同 SQL 互相覆盖的问题
+		type pageSQL struct {
+			sql  string
+			args []interface{}
+		}
+		pages := make([]pageSQL, 0, onetime_exec_thread)
 		for i := 0; i < onetime_exec_thread; i++ {
 			page++
 			dba.ClearBindValues()
@@ -456,37 +462,41 @@ func (dba *Orm) ChunkWG(onetime_exec_thread int, limit int, callback func([]Data
 			dba.where, dba.fields, dba.group = where, fields, group
 			sqlStr, args, err := dba.BuildSql()
 			if err != nil {
-				continue_run = false
 				return err
 			}
-			mp.Store(sqlStr, args)
+			pages = append(pages, pageSQL{sqlStr, args})
 		}
+		// 每个协程使用独立的 Orm 实例查询, 避免并发读写同一个 Orm/Session 的数据竞争;
+		// 各协程结果写入 results 中自己的下标, 主协程在 wg.Wait() 之后统一读取, 无竞态
 		var wg sync.WaitGroup
-		wg.Add(onetime_exec_thread)
-		mp.Range(func(sqlStr, args interface{}) bool {
-			go func(db *Orm, sql string, arg []interface{}) {
+		results := make([]bool, len(pages))
+		for idx, pg := range pages {
+			wg.Add(1)
+			go func(sql string, arg []interface{}, cont *bool) {
+				defer wg.Done()
+				db := NewOrm(dba.GetISession().GetIEngin())
+				db.GetIBinder().SetBindType(OBJECT_STRING)
 				_result, _err := db.Query(sql, arg...)
 				if _err != nil {
-					wg.Done()
-					continue_run = false
-					logger.Error(_err.Error())
+					dba.GetISession().GetIEngin().GetLogger().Error(_err.Error())
 					return
 				}
 				if len(_result) < 1 {
-					wg.Done()
-					continue_run = false
 					return
 				}
 				if _err = callback(_result); _err != nil {
-					wg.Done()
-					continue_run = false
 					return
 				}
-				wg.Done()
-			}(dba, sqlStr.(string), args.([]interface{}))
-			return true
-		})
+				*cont = true
+			}(pg.sql, pg.args, &results[idx])
+		}
 		wg.Wait()
+		for _, cont := range results {
+			if !cont {
+				continue_run = false
+				break
+			}
+		}
 	}
 	return
 }
@@ -744,9 +754,6 @@ func (dba *Orm) PaginatorWG(page ...int) (res Paginate, err error) {
 	where := dba.where
 	fields := dba.fields
 
-	var wg sync.WaitGroup
-	wg.Add(2)
-
 	var resData []Data
 	var err1 error
 
@@ -757,51 +764,37 @@ func (dba *Orm) PaginatorWG(page ...int) (res Paginate, err error) {
 	if err != nil {
 		return
 	}
-	go func(db *Orm, data *[]Data, errs1 *error, sqls *string, ags *[]interface{}) {
-		// 执行查询
-		*data, *errs1 = db.Query(*sqls, *ags...)
-		wg.Done()
-	}(dba, &resData, &err1, &sqlStr, &args)
+
+	// 计数使用独立的 Orm 实例, 避免两个 goroutine 并发读写同一个 Orm/Session 造成数据竞争
+	dbCount := NewOrm(dba.GetISession().GetIEngin())
+	dbCount.ResetTable()
+	dbCount.Table(strings.TrimPrefix(tabname, prefix))
+	var new_fields []string
+	for _, field := range fields {
+		field_low := strings.ToLower(field)
+		if strings.Contains(field_low, "count(") || strings.Contains(field_low, "sum(") ||
+			strings.Contains(field_low, "max(") || strings.Contains(field_low, "min(") ||
+			strings.Contains(field_low, "avg(") {
+			new_fields = append(new_fields, field)
+			break
+		}
+	}
+	dbCount.fields = new_fields
+	dbCount.where = where
 
 	var count int64
 	var err2 error
-	go func(db *Orm, c *int64, errs2 *error) {
-		db.offset = 0
-		new_fields := []string{}
-		for _, field := range fields {
-			field_low := strings.ToLower(field)
-			if strings.Contains(field_low, "count(") {
-				new_fields = append(new_fields, field)
-				break
-			}
-			if strings.Contains(field_low, "sum(") {
-				new_fields = append(new_fields, field)
-				break
-			}
-			if strings.Contains(field_low, "max(") {
-				new_fields = append(new_fields, field)
-				break
-			}
-			if strings.Contains(field_low, "min(") {
-				new_fields = append(new_fields, field)
-				break
-			}
-			if strings.Contains(field_low, "avg(") {
-				new_fields = append(new_fields, field)
-				break
-			}
-		}
-		db.fields = new_fields
-		db.GetISession().GetIBinder().SetBindName(tabname)
-		db.GetISession().GetIBinder().SetBindPrefix(prefix)
-		db.where = where
-		*c, *errs2 = db.Counts()
-		if *errs2 != nil {
-			wg.Done()
-			return
-		}
-		wg.Done()
-	}(dba, &count, &err2)
+	var wg sync.WaitGroup
+	wg.Add(2)
+	go func() {
+		defer wg.Done()
+		// 执行查询
+		resData, err1 = dba.Query(sqlStr, args...)
+	}()
+	go func() {
+		defer wg.Done()
+		count, err2 = dbCount.Counts()
+	}()
 
 	wg.Wait()
 	if err1 != nil {

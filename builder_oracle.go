@@ -19,6 +19,8 @@ const (
 var (
 	operatorOracle = []string{"=", ">", "<", "!=", "<>", ">=", "<=", "like", "not like",
 		"intersect", "minus", "union", "||", "in", "not in", "between", "not between"}
+	// replaceReg 全局预编译正则, 避免 BuildReplace 每次调用都重新编译
+	replaceReg = regexp.MustCompile(`\(([^\)]+)\)`)
 )
 
 // BuilderOracle ...
@@ -60,11 +62,9 @@ func (b *BuilderOracle) SetDriver(dr string) *BuilderOracle {
 
 // GetPlaceholder 获取占位符
 func (b *BuilderOracle) GetPlaceholder() (phstr string) {
-	withLockContext(func() {
-		ph := b.placeholder + 1
-		phstr = fmt.Sprintf(":%v", ph)
-		b.placeholder = ph
-	})
+	// builder 为单次构建的临时对象, 无并发访问, 无需加锁
+	b.placeholder++
+	phstr = ":" + strconv.Itoa(b.placeholder)
 	return
 }
 
@@ -160,8 +160,7 @@ func (b *BuilderOracle) BuildExecuteOra(operType string) (sqlStr string, args []
 	where := ""
 	switch operType {
 	case "insert":
-		sqlStr = fmt.Sprintf("INSERT INTO %s (%s) VALUES %s", b.BuildTable(), insertkey, insertval)
-		break
+		sqlStr = "INSERT INTO " + b.BuildTable() + " (" + insertkey + ") VALUES " + insertval
 	case "update":
 		where, err = b.BuildWhere()
 		if err != nil {
@@ -173,8 +172,7 @@ func (b *BuilderOracle) BuildExecuteOra(operType string) (sqlStr string, args []
 			b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
 			return
 		}
-		sqlStr = fmt.Sprintf("UPDATE %s SET %s%s", b.BuildTable(), update, where)
-		break
+		sqlStr = "UPDATE " + b.BuildTable() + " SET " + update + where
 	case "delete":
 		where, err = b.BuildWhere()
 		if err != nil {
@@ -186,8 +184,7 @@ func (b *BuilderOracle) BuildExecuteOra(operType string) (sqlStr string, args []
 			b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
 			return
 		}
-		sqlStr = fmt.Sprintf("DELETE FROM %s%s", b.BuildTable(), where)
-		break
+		sqlStr = "DELETE FROM " + b.BuildTable() + where
 	case "replace":
 		where, err = b.BuildWithoutWhere()
 		if err != nil {
@@ -204,8 +201,6 @@ func (b *BuilderOracle) BuildExecuteOra(operType string) (sqlStr string, args []
 			sqlStr += "WHEN matched THEN UPDATE SET " + update_sql + " "
 		}
 		sqlStr += "WHEN NOT matched THEN INSERT (" + insert_keys + ") VALUES (" + insert_vals + ")"
-		//sqlStr = fmt.Sprintf("MERGE INTO %s t USING (select %s FROM dual) d on (%s) WHEN matched THEN UPDATE SET%s WHEN NOT matched THEN INSERT (%s) VALUES (%s)", b.BuildTable(), select_sql, on_sql, update_sql, insert_keys, insert_vals)
-		break
 	}
 
 	args = b.IOrm.GetBindValues()
@@ -213,49 +208,62 @@ func (b *BuilderOracle) BuildExecuteOra(operType string) (sqlStr string, args []
 }
 
 func (b *BuilderOracle) BuildReplace(update, where string) (select_sql, on_sql, update_sql, insert_keys, insert_vals string, err error) {
-	var reg *regexp.Regexp
-	reg, err = regexp.Compile(`\(([^\)]+)\)`)
-	if err != nil {
-		return
-	}
+	warr := make([]string, 0)
+	wheres := replaceReg.FindAllString(where, -1)
 
-	warr := []string{}
-	wheres := reg.FindAllString(where, -1)
-
+	// 使用 strings.Builder 避免循环内反复 += 带来的 O(n^2) 字符串分配
+	var onSQL, selSQL, updSQL, keysSQL, valsSQL strings.Builder
 	for i, ws := range wheres {
 		ws = strings.ReplaceAll(ws, "(", "")
 		ws = strings.ReplaceAll(ws, ")", "")
 		if i > 0 {
-			on_sql += " and"
+			onSQL.WriteString(" and")
 		}
 		warr = append(warr, b.AddFieldQuotesOracle(ws))
-		on_sql += " t." + b.AddFieldQuotesOracle(ws) + "=" + "d." + b.AddFieldQuotesOracle(ws) + ""
+		onSQL.WriteString(" t.")
+		onSQL.WriteString(b.AddFieldQuotesOracle(ws))
+		onSQL.WriteString("=d.")
+		onSQL.WriteString(b.AddFieldQuotesOracle(ws))
 	}
 	data1 := strings.Split(update, ",")
 	for i, data := range data1 {
 		data_kv := strings.Split(data, "=")
 		if i > 0 {
-			select_sql += ","
-			insert_keys += ","
-			insert_vals += ","
+			selSQL.WriteString(",")
+			keysSQL.WriteString(",")
+			valsSQL.WriteString(",")
 		}
 		if !inArray(b.AddFieldQuotesOracle(data_kv[0]), warr) {
 			if len(warr) > 0 {
-				if update_sql != "" && i > 0 {
-					update_sql += ","
+				if updSQL.Len() > 0 && i > 0 {
+					updSQL.WriteString(",")
 				}
-				update_sql += " t." + b.AddFieldQuotesOracle(data_kv[0]) + "=" + "d." + b.AddFieldQuotesOracle(data_kv[0]) + ""
+				updSQL.WriteString(" t.")
+				updSQL.WriteString(b.AddFieldQuotesOracle(data_kv[0]))
+				updSQL.WriteString("=d.")
+				updSQL.WriteString(b.AddFieldQuotesOracle(data_kv[0]))
 			} else {
 				if i > 0 {
-					on_sql += " and"
+					onSQL.WriteString(" and")
 				}
-				on_sql += " t." + b.AddFieldQuotesOracle(data_kv[0]) + "=" + "d." + b.AddFieldQuotesOracle(data_kv[0]) + ""
+				onSQL.WriteString(" t.")
+				onSQL.WriteString(b.AddFieldQuotesOracle(data_kv[0]))
+				onSQL.WriteString("=d.")
+				onSQL.WriteString(b.AddFieldQuotesOracle(data_kv[0]))
 			}
 		}
-		insert_keys += b.AddFieldQuotesOracle(data_kv[0])
-		insert_vals += "d." + b.AddFieldQuotesOracle(data_kv[0]) + ""
-		select_sql += data_kv[1] + " " + b.AddFieldQuotesOracle(data_kv[0])
+		keysSQL.WriteString(b.AddFieldQuotesOracle(data_kv[0]))
+		valsSQL.WriteString("d.")
+		valsSQL.WriteString(b.AddFieldQuotesOracle(data_kv[0]))
+		selSQL.WriteString(data_kv[1])
+		selSQL.WriteString(" ")
+		selSQL.WriteString(b.AddFieldQuotesOracle(data_kv[0]))
 	}
+	select_sql = selSQL.String()
+	on_sql = onSQL.String()
+	update_sql = updSQL.String()
+	insert_keys = keysSQL.String()
+	insert_vals = valsSQL.String()
 	return
 }
 
@@ -286,35 +294,27 @@ func (b *BuilderOracle) BuildData2(operType string) (string, string, string) {
 	return b.BuilderDefault.BuildData2(operType)
 }
 
-func (b *BuilderOracle) parseData(operType string, data []map[string]interface{}) (string, string, string) {
+func (b *BuilderOracle) parseData(_ string, data []map[string]interface{}) (string, string, string) {
 	// insert
 	var dataFields []string
 	var dataValues []string
 	// update or delete
 	var dataObj []string
 
+	// map 遍历的 key 天然唯一, 直接收集即可, 避免反射版 inArray 的 O(n^2) 去重
 	for key := range data[0] {
-		if inArray(key, dataFields) == false {
-			dataFields = append(dataFields, key)
-		}
+		dataFields = append(dataFields, key)
 	}
 	for _, item := range data {
 		// 定义1条数据的存储
 		var dataValuesSub []string
 		for _, key := range dataFields {
-			//if item[key] == nil {
-			//	// 放入占位符
-			//	dataValuesSub = append(dataValuesSub, b.GetPlaceholder())
-			//	// 保存真正的值为null
-			//	b.IOrm.SetBindValues("null")
-			//} else {
 			// 放入占位符
 			dataValuesSub = append(dataValuesSub, b.GetPlaceholder())
 			// 保存真正的值
 			b.IOrm.SetBindValues(item[key])
-			//}
 			// update
-			dataObj = append(dataObj, fmt.Sprintf("%s=%s", b.AddFieldQuotesOracle(key), b.GetPlaceholder()))
+			dataObj = append(dataObj, b.AddFieldQuotesOracle(key)+"="+b.GetPlaceholder())
 		}
 		dataValues = append(dataValues, "("+strings.Join(dataValuesSub, ",")+")")
 	}
@@ -377,12 +377,11 @@ func (b *BuilderOracle) BuildOrder() string {
 		for _, s2 := range temp_arr {
 			switch strings.TrimSpace(s2) {
 			case "desc", "asc":
-				order.WriteString(" " + strings.TrimSpace(s2))
-				break
+				order.WriteString(" ")
+				order.WriteString(strings.TrimSpace(s2))
 
 			default:
 				order.WriteString(b.AddFieldQuotesOracle(strings.TrimSpace(s2)))
-				break
 			}
 		}
 	}
@@ -508,7 +507,7 @@ func (b *BuilderOracle) parseWhere(ormApi IOrm) (string, error) {
 		" "), nil
 }
 
-func (b *BuilderOracle) parseParams(args []interface{}, ormApi IOrm) (s string, err error) {
+func (b *BuilderOracle) parseParams(args []interface{}, _ IOrm) (s string, err error) {
 	paramsLength := len(args)
 	argsReal := args
 	// 存储当前所有数据的数组
@@ -531,8 +530,8 @@ func (b *BuilderOracle) parseParams(args []interface{}, ormApi IOrm) (s string, 
 			paramsToArr = append(paramsToArr, b.GetPlaceholder())
 			b.IOrm.SetBindValues(argsReal[2])
 		case "in", "not in":
-			var tmp []string
 			var ar2 = t.New(argsReal[2]).Slice()
+			tmp := make([]string, 0, len(ar2))
 			for _, item := range ar2 {
 				tmp = append(tmp, b.GetPlaceholder())
 				b.IOrm.SetBindValues(t.New(item).Interface())

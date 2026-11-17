@@ -3,6 +3,7 @@ package gorose
 import (
 	"database/sql"
 	"fmt"
+	"sync/atomic"
 )
 
 // TAGNAME ...
@@ -10,6 +11,27 @@ var TAGNAME = "gorose"
 
 // IGNORE ...
 var IGNORE = "-"
+
+// tagNameOverride/ignoreNameOverride 通过 Engin.TagName/IgnoreName 设置的运行期值,
+// 使用 atomic.Value 读写, 避免与查询热路径上的读取产生数据竞争
+var tagNameOverride atomic.Value
+var ignoreNameOverride atomic.Value
+
+// getTagname 获取结构体 orm 字段 tag 名, 优先使用 TagName() 设置的值
+func getTagname() string {
+	if v, ok := tagNameOverride.Load().(string); ok {
+		return v
+	}
+	return TAGNAME
+}
+
+// getIgnorename 获取结构体 orm 忽略字段标记, 优先使用 IgnoreName() 设置的值
+func getIgnorename() string {
+	if v, ok := ignoreNameOverride.Load().(string); ok {
+		return v
+	}
+	return IGNORE
+}
 
 type cluster struct {
 	master     []*sql.DB
@@ -73,14 +95,12 @@ func (c *Engin) Ping() error {
 
 // TagName 自定义结构体对应的orm字段,默认gorose
 func (c *Engin) TagName(arg string) {
-	//c.tagName = arg
-	TAGNAME = arg
+	tagNameOverride.Store(arg)
 }
 
 // IgnoreName 自定义结构体对应的orm忽略字段名字,默认-
 func (c *Engin) IgnoreName(arg string) {
-	//c.ignoreName = arg
-	IGNORE = arg
+	ignoreNameOverride.Store(arg)
 }
 
 // SetPrefix 设置表前缀

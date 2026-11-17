@@ -445,9 +445,10 @@ func (dba *Orm) BuildSql(operType ...string) (a string, b []interface{}, err err
 	}
 	// 解析字段
 	// 如果有union操作, 则不需要
-	if inArray(dba.GetIBinder().GetBindType(), []interface{}{OBJECT_STRUCT, OBJECT_STRUCT_SLICE}) &&
-		dba.GetUnion() == nil {
-		dba.fields = getTagName(dba.GetIBinder().GetBindResult(), TAGNAME)
+	// 直接比较枚举值, 避免反射版 inArray 的开销
+	bindType := dba.GetIBinder().GetBindType()
+	if (bindType == OBJECT_STRUCT || bindType == OBJECT_STRUCT_SLICE) && dba.GetUnion() == nil {
+		dba.fields = getTagName(dba.GetIBinder().GetBindResult(), getTagname())
 	}
 	if len(operType) == 0 || (len(operType) > 0 && strings.ToLower(operType[0]) == "select") {
 		//// 根据传入的struct, 设置limit, 有效的节约空间

@@ -3,6 +3,7 @@ package gorose
 import (
 	"errors"
 	"fmt"
+	"sync"
 )
 
 // Error ...
@@ -51,6 +52,7 @@ func (l Lang) String() string {
 
 // Err ...
 type Err struct {
+	mu   sync.RWMutex
 	lang Lang
 	err  map[Lang]map[Error]string
 }
@@ -72,22 +74,30 @@ func NewErr() *Err {
 
 // SetLang ...
 func (e *Err) SetLang(l Lang) {
+	e.mu.Lock()
+	defer e.mu.Unlock()
 	e.lang = l
 }
 
 // GetLang ...
 func (e *Err) GetLang() Lang {
+	e.mu.RLock()
+	defer e.mu.RUnlock()
 	return e.lang
 }
 
 // Register ...
 func (e *Err) Register(err map[Error]string) {
-	e.err[e.GetLang()] = err
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	e.err[e.lang] = err
 }
 
 // Get ...
 func (e *Err) Get(err Error) string {
-	return e.err[e.GetLang()][err]
+	e.mu.RLock()
+	defer e.mu.RUnlock()
+	return e.err[e.lang][err]
 }
 
 // GetErr ...
