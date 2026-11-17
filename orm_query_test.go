@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"testing"
-	"time"
 )
 
 func TestOrm_BuildSql2(t *testing.T) {
@@ -47,22 +46,18 @@ func TestOrm_BuildSql4(t *testing.T) {
 }
 
 func TestOrm_BuildSql5(t *testing.T) {
-	//ticker := time.NewTicker(100*time.Millisecond)
+	done := make(chan struct{})
 	go func(t *testing.T) {
-		for {
-			//<-ticker.C
-			db := DB()
-			sqlstr, a, b := db.Table("users").Where("uid", ">", 1).BuildSql()
-			//c,d := db.Table("users").Get()
-			//t.Log(db.LastSql())
-			count, d := db.First()
+		db := DB()
+		sqlstr, a, b := db.Table("users").Where("uid", ">", 1).BuildSql()
+		count, d := db.First()
 
-			t.Log(sqlstr, a, b)
-			t.Log(count, d)
-			t.Log(db.LastSql())
-		}
+		t.Log(sqlstr, a, b)
+		t.Log(count, d)
+		t.Log(db.LastSql())
+		close(done)
 	}(t)
-	time.Sleep(500 * time.Millisecond)
+	<-done
 }
 
 func TestOrm_BuildSql6(t *testing.T) {
