@@ -22,7 +22,7 @@ func init() {
 
 // NewBuilderPostgres ...
 func NewBuilderPostgres() *BuilderPostgres {
-	return new(BuilderPostgres)
+	return &BuilderPostgres{driver: DriverPostgres}
 }
 
 // Clone : a new obj

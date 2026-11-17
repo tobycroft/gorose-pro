@@ -34,6 +34,7 @@ func TestOrm_Update2(t *testing.T) {
 		t.Log(err.Error())
 		return
 	}
+	
 	t.Log(aff, db.LastSql())
 }
 

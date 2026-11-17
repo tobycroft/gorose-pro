@@ -23,7 +23,7 @@ func init() {
 
 // NewBuilderMsSql ...
 func NewBuilderMsSql() *BuilderMsSql {
-	return new(BuilderMsSql)
+	return &BuilderMsSql{driver: DriverMsSql}
 }
 
 // Clone : a new obj

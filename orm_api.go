@@ -18,6 +18,12 @@ type OrmApi struct {
 	extraCols []string
 	// 悲观锁
 	pessimisticLock string
+	// 向量支持: 延迟合并的向量字段(VecData 作用在 struct/slice 数据上时)
+	vectorData map[string]VectorValue
+	// 向量距离过滤条件
+	vectorWheres []VectorWhereItem
+	// 向量距离排序项(KNN)
+	vectorOrders []VectorOrderItem
 }
 
 // GetTable ...
@@ -93,4 +99,19 @@ func (o *Orm) GetExtraCols() []string {
 // GetPessimisticLock ...
 func (o *Orm) GetPessimisticLock() string {
 	return o.pessimisticLock
+}
+
+// GetVectorData 获取延迟合并的向量字段
+func (o *Orm) GetVectorData() map[string]VectorValue {
+	return o.vectorData
+}
+
+// GetVectorWheres 获取向量距离过滤条件
+func (o *Orm) GetVectorWheres() []VectorWhereItem {
+	return o.vectorWheres
+}
+
+// GetVectorOrders 获取向量距离排序项
+func (o *Orm) GetVectorOrders() []VectorOrderItem {
+	return o.vectorOrders
 }

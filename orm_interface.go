@@ -20,6 +20,13 @@ type IOrm interface {
 	Data(data interface{}) IOrm
 	DataStruct(data interface{}) IOrm
 	DataStructStrict(data interface{}) IOrm
+	// 向量支持
+	// VecData 写入/更新向量字段, 输入项受编译期类型限制(gorose.Vector / gorose.VectorString)
+	VecData(field string, value VectorValue) IOrm
+	// OrderVector 向量最近邻排序(KNN), 需配合 Limit 使用
+	OrderVector(field string, value VectorValue, metric VectorMetric) IOrm
+	// WhereVectorDistance 向量距离过滤: DISTANCE(field, value, metric) op threshold
+	WhereVectorDistance(field string, value VectorValue, metric VectorMetric, op VectorOp, threshold interface{}) IOrm
 	// groupBy, orderBy, having
 	Group(group string) IOrm
 	GroupBy(group string) IOrm

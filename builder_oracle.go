@@ -40,6 +40,8 @@ func NewBuilderOracle(o IOrm) *BuilderOracle {
 	builderOracle.IOrm = o
 	// 每次使用的时候, 重置为0, 方便pg的占位符使用
 	builderOracle.placeholder = 0
+	// current 指向自身, 使向量等辅助方法能取到 oracle 的 :N 占位符与引号规则
+	builderOracle.current = builderOracle
 
 	return builderOracle
 }
@@ -81,6 +83,33 @@ func (b *BuilderOracle) BuildQueryOra() (sqlStr string, args []interface{}, err 
 		b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
 		return
 	}
+	// 向量距离过滤条件(WhereVectorDistance), 绑定参数紧跟 where 之后
+	vectorWhere, err := b.buildVectorWheres()
+	if err != nil {
+		b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
+		return
+	}
+	if vectorWhere != "" {
+		if where == "" {
+			where = " WHERE " + vectorWhere
+		} else {
+			where += " AND " + vectorWhere
+		}
+	}
+	// 向量距离排序(OrderVector), 与 Order() 合并
+	orderStr := b.BuildOrder()
+	vectorOrder, err := b.buildVectorOrders()
+	if err != nil {
+		b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
+		return
+	}
+	if vectorOrder != "" {
+		if orderStr == "" {
+			orderStr = " ORDER BY " + vectorOrder
+		} else {
+			orderStr += ", " + vectorOrder
+		}
+	}
 
 	if len(b.GetJoin()) > 0 {
 		b.GetFields()
@@ -90,7 +119,7 @@ func (b *BuilderOracle) BuildQueryOra() (sqlStr string, args []interface{}, err 
 	fieldsStr := b.BuildFields()
 	tableName := b.BuildTable()
 	sqlStr = fmt.Sprintf("SELECT %s%s FROM %s%s%s%s%s%s%s", b.BuildDistinct(), fieldsStr,
-		tableName, join, where, b.BuildLimit(), b.BuildGroup(), b.BuildHaving(), b.BuildOrder())
+		tableName, join, where, b.BuildLimit(), b.BuildGroup(), b.BuildHaving(), orderStr)
 	//fmt.Println("sqlstr1", sqlStr)
 	// 批量取数据需嵌套写法
 	if b.GetLimit() > 0 {
@@ -112,7 +141,7 @@ func (b *BuilderOracle) BuildQueryOra() (sqlStr string, args []interface{}, err 
 		// 如果考虑orderby优化，还需要一层嵌套。目前未考虑
 		if b.GetGroup() == "" {
 			sqlStr = fmt.Sprintf("SELECT %s%s FROM %s%s%s%s", b.BuildDistinct(), fieldsStr,
-				tableName, join, where, b.BuildOrder())
+				tableName, join, where, orderStr)
 
 			//sqlStr = fmt.Sprintf("select * from (%s) %s where %s.r>=%s",
 			//	sqlStr, aliasNameA, aliasNameA, strconv.Itoa(startRow))
@@ -128,7 +157,7 @@ func (b *BuilderOracle) BuildQueryOra() (sqlStr string, args []interface{}, err 
 			}
 
 			sqlStr = fmt.Sprintf("SELECT %s%s FROM %s%s%s%s%s%s GROUP BY ROWNUM", b.BuildDistinct(), fieldsStr,
-				tableName, join, where, b.BuildGroup(), b.BuildHaving(), b.BuildOrder())
+				tableName, join, where, b.BuildGroup(), b.BuildHaving(), orderStr)
 
 			sqlStr = fmt.Sprintf(
 				"select * from (select %s, rownum r from (%s) %s where rownum<%s ) %s where %s.r>=%s",
@@ -305,14 +334,25 @@ func (b *BuilderOracle) parseData(_ string, data []map[string]interface{}) (stri
 	for key := range data[0] {
 		dataFields = append(dataFields, key)
 	}
+	// 注入延迟合并的向量字段(VecData 作用在 struct/slice 数据上时)
+	if vd := b.IOrm.GetVectorData(); len(vd) > 0 {
+		for i := range data {
+			for k, v := range vd {
+				if _, exists := data[i][k]; !exists {
+					data[i][k] = v
+				}
+			}
+		}
+	}
+
 	for _, item := range data {
 		// 定义1条数据的存储
 		var dataValuesSub []string
 		for _, key := range dataFields {
 			// 放入占位符
 			dataValuesSub = append(dataValuesSub, b.GetPlaceholder())
-			// 保存真正的值
-			b.IOrm.SetBindValues(item[key])
+			// 保存真正的值(向量类型按驱动序列化)
+			b.IOrm.SetBindValues(vectorBindIfVector(item[key], b.driver))
 			// update
 			dataObj = append(dataObj, b.AddFieldQuotesOracle(key)+"="+b.GetPlaceholder())
 		}

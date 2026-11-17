@@ -18,4 +18,8 @@ type IOrmApi interface {
 	ResetExtraCols() IOrm
 	GetExtraCols() []string
 	GetPessimisticLock() string
+	// 向量支持
+	GetVectorData() map[string]VectorValue
+	GetVectorWheres() []VectorWhereItem
+	GetVectorOrders() []VectorOrderItem
 }

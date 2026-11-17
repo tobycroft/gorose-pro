@@ -93,10 +93,40 @@ func (b *BuilderDefault) BuildQuery() (sqlStr string, args []interface{}, err er
 		b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
 		return
 	}
+	// 向量距离过滤条件(WhereVectorDistance), 绑定参数紧跟 where 之后
+	vectorWhere, err := b.buildVectorWheres()
+	if err != nil {
+		b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
+		return
+	}
+	if vectorWhere != "" {
+		if where == "" {
+			where = " WHERE " + vectorWhere
+		} else {
+			where += " AND " + vectorWhere
+		}
+	}
 	//fmt.Println("kggs3", args)
+	// 向量距离排序(OrderVector), 与 Order() 合并
+	orderStr := ""
+	if b.IOrm.GetOrder() != "" {
+		orderStr = " ORDER BY " + b.IOrm.GetOrder()
+	}
+	vectorOrder, err := b.buildVectorOrders()
+	if err != nil {
+		b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
+		return
+	}
+	if vectorOrder != "" {
+		if orderStr == "" {
+			orderStr = " ORDER BY " + vectorOrder
+		} else {
+			orderStr += ", " + vectorOrder
+		}
+	}
 	// 直接字符串拼接, 避免热路径上 fmt.Sprintf 的反射开销
 	sqlStr = "SELECT " + b.BuildDistinct() + b.BuildFields() + " FROM " + b.BuildTable() + join + where +
-		b.BuildGroup() + b.BuildHaving() + b.BuildOrder() + b.BuildLimit() + b.BuildOffset()
+		b.BuildGroup() + b.BuildHaving() + orderStr + b.BuildLimit() + b.BuildOffset()
 
 	//args = b.bindParams
 	args = b.GetBindValues()
@@ -272,6 +302,17 @@ func (b *BuilderDefault) parseData(operType string, data []map[string]interface{
 		return "", "", ""
 	}
 
+	// 注入延迟合并的向量字段(VecData 作用在 struct/slice 数据上时)
+	if vd := b.IOrm.GetVectorData(); len(vd) > 0 {
+		for i := range data {
+			for k, v := range vd {
+				if _, exists := data[i][k]; !exists {
+					data[i][k] = v
+				}
+			}
+		}
+	}
+
 	// map 遍历的 key 天然唯一, 直接收集即可, 避免反射版 inArray 的 O(n^2) 去重
 	for key := range data[0] {
 		insertFields = append(insertFields, key)
@@ -281,6 +322,7 @@ func (b *BuilderDefault) parseData(operType string, data []map[string]interface{
 		var insertValuesSub []string
 		for _, key := range insertFields {
 			placeholder := b.GetPlaceholder()
+			expr := placeholder
 			if item[key] == nil {
 				if operType == "insert" || operType == "replace" {
 					// 放入占位符
@@ -289,15 +331,19 @@ func (b *BuilderDefault) parseData(operType string, data []map[string]interface{
 				// 保存真正的值为null
 				b.SetBindValues("null")
 			} else {
+				// 向量类型: 按驱动序列化(如 mysql 需要 STRING_TO_VECTOR 包裹)
+				if vi, ok := item[key].(VectorValue); ok {
+					expr, item[key] = b.vectorValueExpr(placeholder, vi)
+				}
 				if operType == "insert" || operType == "replace" {
 					// 放入占位符
-					insertValuesSub = append(insertValuesSub, placeholder)
+					insertValuesSub = append(insertValuesSub, expr)
 				}
 				// 保存真正的值
 				b.SetBindValues(item[key])
 			}
 			// update
-			dataObj = append(dataObj, b.current.AddFieldQuotes(key)+" = "+placeholder)
+			dataObj = append(dataObj, b.current.AddFieldQuotes(key)+" = "+expr)
 		}
 		insertValues = append(insertValues, "("+strings.Join(insertValuesSub, ",")+")")
 	}
@@ -665,4 +711,154 @@ func (b *BuilderDefault) parseParams(args []interface{}, _ IOrm) (s string, err 
 // GetOperator ...
 func (b *BuilderDefault) GetOperator() []string {
 	return b.operator
+}
+
+// IPlaceholder 占位符生成接口: 方言 builder(如 oracle 的 :N)可各自实现
+type IPlaceholder interface {
+	GetPlaceholder() string
+}
+
+// vectorPlaceholder 向量表达式占位符: 优先使用 current 的方言实现
+func (b *BuilderDefault) vectorPlaceholder() string {
+	if p, ok := b.current.(IPlaceholder); ok {
+		return p.GetPlaceholder()
+	}
+	return b.GetPlaceholder()
+}
+
+// vectorBind 向量相关的绑定参数: oracle 的构建走 IOrm(orm.bindValues), 其他走 builder 本地
+func (b *BuilderDefault) vectorBind(v interface{}) {
+	if b.driver == DriverOracle {
+		b.IOrm.SetBindValues(v)
+		return
+	}
+	b.SetBindValues(v)
+}
+
+// quoteVectorField 向量字段加引号: oracle 使用双引号, 其他按 current(builder) 的规则
+func (b *BuilderDefault) quoteVectorField(field string) string {
+	if b.driver == DriverOracle {
+		return FieldQuotesDefault{}.AddFieldQuotesOracle(field)
+	}
+	if b.current != nil {
+		return b.current.AddFieldQuotes(field)
+	}
+	return field
+}
+
+// vectorValueExpr 生成向量字段的 SQL 表达式与绑定值:
+// mysql 的 VECTOR 是二进制类型, 需要 STRING_TO_VECTOR 包裹;
+// clickhouse 直接绑定 []float32; postgres/mssql/oracle/sqlite 绑定文本形式
+func (b *BuilderDefault) vectorValueExpr(placeholder string, v VectorValue) (expr string, bind interface{}) {
+	switch vv := v.(type) {
+	case Vector:
+		switch b.driver {
+		case DriverMysql:
+			return "STRING_TO_VECTOR(" + placeholder + ")", vv.String()
+		case DriverClickhouse:
+			return placeholder, []float32(vv)
+		default:
+			return placeholder, vv.String()
+		}
+	case VectorString:
+		if b.driver == DriverMysql {
+			return "STRING_TO_VECTOR(" + placeholder + ")", string(vv)
+		}
+		return placeholder, string(vv)
+	}
+	return placeholder, v
+}
+
+// buildVectorDistance 生成向量距离表达式, 并绑定查询向量参数。
+// 统一"距离"语义: 值越小越相似, 配合升序排序(默认 ORDER BY)使用。
+func (b *BuilderDefault) buildVectorDistance(field string, value VectorValue, metric VectorMetric) (string, error) {
+	if !metric.valid() {
+		return "", errors.New("向量度量不支持: " + string(metric))
+	}
+	switch vv := value.(type) {
+	case Vector:
+		if len(vv) == 0 {
+			return "", errors.New("向量值不能为空")
+		}
+	case VectorString:
+		if string(vv) == "" {
+			return "", errors.New("向量值不能为空")
+		}
+	default:
+		return "", errors.New("向量值类型不支持")
+	}
+
+	b.vectorBind(vectorToBind(value, b.driver))
+	ph := b.vectorPlaceholder()
+	fieldQ := b.quoteVectorField(field)
+
+	switch b.driver {
+	case DriverPostgres:
+		switch metric {
+		case VectorL2:
+			return fieldQ + " <-> " + ph, nil
+		case VectorCosine:
+			return fieldQ + " <=> " + ph, nil
+		case VectorDot:
+			// <#> 为负内积, 升序即相似度降序
+			return fieldQ + " <#> " + ph, nil
+		}
+	case DriverMysql:
+		return "DISTANCE(" + fieldQ + ", " + ph + ", '" + metric.canonicalName() + "')", nil
+	case DriverMsSql:
+		return "VECTOR_DISTANCE('" + strings.ToLower(metric.canonicalName()) + "', " + fieldQ + ", " + ph + ")", nil
+	case DriverOracle:
+		return "VECTOR_DISTANCE('" + metric.canonicalName() + "', " + fieldQ + ", " + ph + ")", nil
+	case DriverClickhouse:
+		switch metric {
+		case VectorL2:
+			return "L2Distance(" + fieldQ + ", " + ph + ")", nil
+		case VectorCosine:
+			return "cosineDistance(" + fieldQ + ", " + ph + ")", nil
+		case VectorDot:
+			// 取负内积, 保持"值越小越相似"的距离语义
+			return "-dotProduct(" + fieldQ + ", " + ph + ")", nil
+		}
+	}
+	return "", errors.New("当前驱动 [" + b.driver + "] 不支持向量检索")
+}
+
+// buildVectorWheres 构建向量距离过滤条件(WhereVectorDistance)
+func (b *BuilderDefault) buildVectorWheres() (string, error) {
+	items := b.IOrm.GetVectorWheres()
+	if len(items) == 0 {
+		return "", nil
+	}
+	var parts []string
+	for _, it := range items {
+		switch it.Op {
+		case VectorOpEq, VectorOpLt, VectorOpLte, VectorOpGt, VectorOpGte:
+		default:
+			return "", errors.New("向量距离比较操作符不支持: " + string(it.Op))
+		}
+		expr, err := b.buildVectorDistance(it.Field, it.Value, it.Metric)
+		if err != nil {
+			return "", err
+		}
+		parts = append(parts, expr+" "+string(it.Op)+" "+b.GetPlaceholder())
+		b.vectorBind(it.Threshold)
+	}
+	return strings.Join(parts, " AND "), nil
+}
+
+// buildVectorOrders 构建向量距离排序(OrderVector)
+func (b *BuilderDefault) buildVectorOrders() (string, error) {
+	items := b.IOrm.GetVectorOrders()
+	if len(items) == 0 {
+		return "", nil
+	}
+	var parts []string
+	for _, it := range items {
+		expr, err := b.buildVectorDistance(it.Field, it.Value, it.Metric)
+		if err != nil {
+			return "", err
+		}
+		parts = append(parts, expr)
+	}
+	return strings.Join(parts, ", "), nil
 }
