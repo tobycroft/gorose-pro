@@ -138,6 +138,24 @@ func (c *Engin) GetExecuteDB() *sql.DB {
 	return c.dbs.master[randint]
 }
 
+// GetExecuteDBStats 获取主库连接池统计信息, 便于观察 OpenConnections/InUse/Idle/WaitCount/WaitDuration 等
+func (c *Engin) GetExecuteDBStats() sql.DBStats {
+	db := c.GetExecuteDB()
+	if db == nil {
+		return sql.DBStats{}
+	}
+	return db.Stats()
+}
+
+// GetQueryDBStats 获取从库连接池统计信息, 便于观察 OpenConnections/InUse/Idle/WaitCount/WaitDuration 等
+func (c *Engin) GetQueryDBStats() sql.DBStats {
+	db := c.GetQueryDB()
+	if db == nil {
+		return sql.DBStats{}
+	}
+	return db.Stats()
+}
+
 // GetLogger ...
 func (c *Engin) GetLogger() ILogger {
 	return c.logger
@@ -240,6 +258,12 @@ func (c *Engin) bootReal(dbConf Config) (db *sql.DB, err error) {
 	}
 	if dbConf.SetMaxIdleConns > 0 {
 		db.SetMaxIdleConns(dbConf.SetMaxIdleConns)
+	}
+	if dbConf.SetConnMaxLifetime > 0 {
+		db.SetConnMaxLifetime(dbConf.SetConnMaxLifetime)
+	}
+	if dbConf.SetConnMaxIdleTime > 0 {
+		db.SetConnMaxIdleTime(dbConf.SetConnMaxIdleTime)
 	}
 
 	return

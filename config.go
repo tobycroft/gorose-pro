@@ -1,14 +1,18 @@
 package gorose
 
+import "time"
+
 // Config ...
 type Config struct {
 	Driver string `json:"driver"` // 驱动: mysql/sqlite3/oracle/mssql/postgres/clickhouse, 如果集群配置了驱动, 这里可以省略
 	// mysql 示例:
 	// root:root@tcp(localhost:3306)/test?charset=utf8mb4&parseTime=true
-	Dsn             string `json:"dsn"`             // 数据库链接
-	SetMaxOpenConns int    `json:"setMaxOpenConns"` // (连接池)最大打开的连接数，默认值为0表示不限制
-	SetMaxIdleConns int    `json:"setMaxIdleConns"` // (连接池)闲置的连接数, 默认0
-	Prefix          string `json:"prefix"`          // 表前缀, 如果集群配置了前缀, 这里可以省略
+	Dsn                string        `json:"dsn"`                // 数据库链接
+	SetMaxOpenConns    int           `json:"setMaxOpenConns"`    // (连接池)最大打开的连接数，默认值为0表示不限制
+	SetMaxIdleConns    int           `json:"setMaxIdleConns"`    // (连接池)闲置的连接数, 默认0
+	SetConnMaxLifetime time.Duration `json:"setConnMaxLifetime"` // (连接池)连接最大存活时间, 默认0表示不限制
+	SetConnMaxIdleTime time.Duration `json:"setConnMaxIdleTime"` // (连接池)连接最大闲置时间, 默认0表示不限制
+	Prefix             string        `json:"prefix"`             // 表前缀, 如果集群配置了前缀, 这里可以省略
 }
 
 // ConfigCluster ...

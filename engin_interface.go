@@ -6,6 +6,8 @@ import "database/sql"
 type IEngin interface {
 	GetExecuteDB() *sql.DB
 	GetQueryDB() *sql.DB
+	GetExecuteDBStats() sql.DBStats
+	GetQueryDBStats() sql.DBStats
 	//EnableSqlLog(e ...bool)
 	//IfEnableSqlLog() (e bool)
 	//SetPrefix(pre string)
