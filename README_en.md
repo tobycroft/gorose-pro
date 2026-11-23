@@ -93,7 +93,7 @@ go get -u github.com/tobycroft/gorose-pro@latest
 Or pin a version in `go.mod`:
 
 ```go
-require github.com/tobycroft/gorose-pro v1.16.4
+require github.com/tobycroft/gorose-pro v1.18.1
 ```
 
 ## Documentation (Wiki)

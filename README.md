@@ -91,7 +91,7 @@ go get -u github.com/tobycroft/gorose-pro@latest
 或在 `go.mod` 中指定版本：
 
 ```go
-require github.com/tobycroft/gorose-pro v1.16.4
+require github.com/tobycroft/gorose-pro v1.18.1
 ```
 
 ## 实例文档（Wiki）
