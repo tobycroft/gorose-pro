@@ -358,9 +358,9 @@ func (s *Session) scan(rows *sql.Rows) (err error) {
 //}
 
 func (s *Session) scanMapAll(rows *sql.Rows) (err error) {
-	var columns []string
 	// 获取查询的所有字段
-	if columns, err = rows.Columns(); err != nil {
+	columns, err := rows.Columns()
+	if err != nil {
 		return
 	}
 	count := len(columns)
@@ -370,22 +370,63 @@ func (s *Session) scanMapAll(rows *sql.Rows) (err error) {
 	bindResultMapType := br.Type()
 	bindType := s.GetBindType()
 
-	for rows.Next() {
-		// 定义要绑定的结果集
-		values := make([]interface{}, count)
-		scanArgs := make([]interface{}, count)
-		for i := 0; i < count; i++ {
-			scanArgs[i] = &values[i]
-		}
-		// 获取结果
-		_ = rows.Scan(scanArgs...)
+	// 复用扫描缓冲区, 避免每行重复分配
+	values := make([]interface{}, count)
+	scanArgs := make([]interface{}, count)
+	for i := range values {
+		scanArgs[i] = &values[i]
+	}
+	// 预计算列名反射值, 避免内层循环重复创建反射对象
+	colVals := make([]reflect.Value, count)
+	for i, col := range columns {
+		colVals[i] = reflect.ValueOf(col)
+	}
 
-		// 定义预设的绑定对象
-		//fmt.Println(reflect.TypeOf(s.GetBindResult()).Kind())
+	// 普通 map[string]interface{} 的元素类型是空接口, 走无反射快速路径
+	isPlainMap := bindResultMapType.Elem().Kind() == reflect.Interface &&
+		bindResultMapType.Elem().NumMethod() == 0
+	// 记录最后一行, 循环结束后一次性更新最新一条结果对象
+	var lastItem map[string]interface{}
+
+	for rows.Next() {
+		if err = rows.Scan(scanArgs...); err != nil {
+			return
+		}
+
+		// union 操作: 直接取第一列的值返回
+		if s.GetUnion() != nil {
+			if count > 0 {
+				if b, ok := values[0].([]byte); ok {
+					s.union = string(b)
+				} else {
+					s.union = values[0]
+				}
+			}
+			return
+		}
+
+		if isPlainMap {
+			// 快速路径: 普通 map[string]interface{}, 不做反射式赋值
+			item := make(map[string]interface{}, count)
+			for i, col := range columns {
+				val := values[i]
+				if b, ok := val.([]byte); ok {
+					item[col] = string(b)
+				} else {
+					item[col] = val
+				}
+			}
+			if bindType == OBJECT_MAP_SLICE {
+				mv := reflect.ValueOf(item).Convert(bindResultMapType)
+				s.GetBindResultSlice().Set(reflect.Append(s.GetBindResultSlice(), mv))
+			}
+			lastItem = item
+			continue
+		}
+
+		// t.Type 或其他类型: 保留反射赋值
 		var bindResultTmp = reflect.MakeMap(bindResultMapType)
-		//// 定义union操作的map返回
-		//var unionTmp = map[string]interface{}{}
-		for i, col := range columns {
+		for i := range columns {
 			var v interface{}
 			val := values[i]
 			if b, ok := val.([]byte); ok {
@@ -393,44 +434,38 @@ func (s *Session) scanMapAll(rows *sql.Rows) (err error) {
 			} else {
 				v = val
 			}
-			// 如果是union操作就不需要绑定数据直接返回, 否则就绑定数据
-			//TODO 这里可能有点问题, 比如在group时, 返回的结果不止一条, 这里直接返回的就是第一条
-			// 默认其实只是取了第一条, 满足常规的 union 操作(count,sum,max,min,avg)而已
-			// 后边需要再行完善, 以便group时使用
-			// 具体完善方法: 就是这里断点去掉, 不直接绑定union, 新增一个map,将结果放在map中,在方法最后统一返回
-			if s.GetUnion() != nil {
-				s.union = v
-				return
-				// 以下上通用解决方法
-				//unionTmp[col] = v
-				//s.union = unionTmp
-			} else {
-				switch bindType {
-				case OBJECT_MAP_T, OBJECT_MAP_SLICE_T: // t.T类型
-					// 绑定到一条数据结果对象上,方便其他地方的调用,永远存储最新一条
-					br.SetMapIndex(reflect.ValueOf(col), reflect.ValueOf(t.New(v)))
-					// 跟上一行干的事是一样的, 只不过防止上一行的数据被后续的数据改变, 而无法提供给下边多条数据报错的需要
-					if s.GetBindType() == OBJECT_MAP_SLICE || s.GetBindType() == OBJECT_MAP_SLICE_T {
-
-						bindResultTmp.SetMapIndex(reflect.ValueOf(col), reflect.ValueOf(t.New(v)))
-					}
-				default: // 普通类型map[string]interface{}, 具体代码注释参照 上一个 case
-					br.SetMapIndex(reflect.ValueOf(col), reflect.ValueOf(v))
-					if s.GetBindType() == OBJECT_MAP_SLICE || s.GetBindType() == OBJECT_MAP_SLICE_T {
-						bindResultTmp.SetMapIndex(reflect.ValueOf(col), reflect.ValueOf(v))
-					}
+			switch bindType {
+			case OBJECT_MAP_T, OBJECT_MAP_SLICE_T: // t.Type 类型
+				tv := reflect.ValueOf(t.New(v))
+				// 绑定到一条数据结果对象上,方便其他地方的调用,永远存储最新一条
+				br.SetMapIndex(colVals[i], tv)
+				if bindType == OBJECT_MAP_SLICE_T {
+					bindResultTmp.SetMapIndex(colVals[i], tv)
+				}
+			default: // 其他类型
+				br.SetMapIndex(colVals[i], reflect.ValueOf(v))
+				if bindType == OBJECT_MAP_SLICE {
+					bindResultTmp.SetMapIndex(colVals[i], reflect.ValueOf(v))
 				}
 			}
 		}
-		// 如果是union操作就不需要绑定数据直接返回, 否则就绑定数据
-		if s.GetUnion() == nil {
-			// 如果是多条数据集, 就插入到对应的结果集slice上
-			if s.GetBindType() == OBJECT_MAP_SLICE || s.GetBindType() == OBJECT_MAP_SLICE_T {
-				s.GetBindResultSlice().Set(reflect.Append(s.GetBindResultSlice(), bindResultTmp))
+		// 如果是多条数据集, 就插入到对应的结果集slice上
+		if bindType == OBJECT_MAP_SLICE || bindType == OBJECT_MAP_SLICE_T {
+			s.GetBindResultSlice().Set(reflect.Append(s.GetBindResultSlice(), bindResultTmp))
+		}
+	}
+
+	// 更新最新一条结果对象, 便于 GetBindResult() 返回最后一条数据
+	if isPlainMap && lastItem != nil {
+		if bindType == OBJECT_MAP {
+			br.Set(reflect.ValueOf(lastItem).Convert(bindResultMapType))
+		} else {
+			for i, col := range columns {
+				br.SetMapIndex(colVals[i], reflect.ValueOf(lastItem[col]))
 			}
 		}
 	}
-	return
+	return rows.Err()
 }
 
 // ScanAll scans all sql result rows into a slice of structs.
@@ -487,14 +522,15 @@ func (s *Session) scanAll(rows *sql.Rows) (err error) {
 	}
 	count := len(columns)
 
+	// 复用扫描缓冲区, 避免每行重复分配
+	values := make([]interface{}, count)
+	scanArgs := make([]interface{}, count)
+	for i := range values {
+		scanArgs[i] = &values[i]
+	}
+
 	var result = []Data{}
 	for rows.Next() {
-		// 定义要绑定的结果集
-		values := make([]interface{}, count)
-		scanArgs := make([]interface{}, count)
-		for i := 0; i < count; i++ {
-			scanArgs[i] = &values[i]
-		}
 		// 获取结果
 		_ = rows.Scan(scanArgs...)
 
