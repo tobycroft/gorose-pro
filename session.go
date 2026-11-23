@@ -9,8 +9,6 @@ import (
 	"strings"
 	"sync/atomic"
 	"time"
-
-	"github.com/gohouse/t"
 )
 
 const beginStatus = 0
@@ -424,7 +422,7 @@ func (s *Session) scanMapAll(rows *sql.Rows) (err error) {
 			continue
 		}
 
-		// t.Type 或其他类型: 保留反射赋值
+		// Type 或其他类型: 保留反射赋值
 		var bindResultTmp = reflect.MakeMap(bindResultMapType)
 		for i := range columns {
 			var v interface{}
@@ -435,8 +433,8 @@ func (s *Session) scanMapAll(rows *sql.Rows) (err error) {
 				v = val
 			}
 			switch bindType {
-			case OBJECT_MAP_T, OBJECT_MAP_SLICE_T: // t.Type 类型
-				tv := reflect.ValueOf(t.New(v))
+			case OBJECT_MAP_T, OBJECT_MAP_SLICE_T: // Type 类型
+				tv := reflect.ValueOf(New(v))
 				// 绑定到一条数据结果对象上,方便其他地方的调用,永远存储最新一条
 				br.SetMapIndex(colVals[i], tv)
 				if bindType == OBJECT_MAP_SLICE_T {

@@ -7,8 +7,6 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-
-	"github.com/gohouse/t"
 )
 
 const (
@@ -305,14 +303,14 @@ func (b *BuilderOracle) BuildData(operType string) (string, string, string) {
 	case reflect.Struct:
 		return b.parseData(operType, StructContent2Map(data, b.IOrm.GetExtraCols()))
 	case reflect.Map:
-		var tmp = []map[string]interface{}{t.New(data).MapStringInterface()}
+		var tmp = []map[string]interface{}{New(data).MapStringInterface()}
 		return b.parseData(operType, tmp)
 	case reflect.Slice:
 		switch ref.Type().Elem().Kind() {
 		case reflect.Struct:
 			return b.parseData(operType, StructContent2Map(data, b.IOrm.GetExtraCols()))
 		case reflect.Map:
-			return b.parseData(operType, t.New(data).SliceMapStringInterface())
+			return b.parseData(operType, New(data).SliceMapStringInterface())
 		}
 	}
 	return "", "", ""
@@ -570,15 +568,15 @@ func (b *BuilderOracle) parseParams(args []interface{}, _ IOrm) (s string, err e
 			paramsToArr = append(paramsToArr, b.GetPlaceholder())
 			b.IOrm.SetBindValues(argsReal[2])
 		case "in", "not in":
-			var ar2 = t.New(argsReal[2]).Slice()
+			var ar2 = New(argsReal[2]).Slice()
 			tmp := make([]string, 0, len(ar2))
 			for _, item := range ar2 {
 				tmp = append(tmp, b.GetPlaceholder())
-				b.IOrm.SetBindValues(t.New(item).Interface())
+				b.IOrm.SetBindValues(New(item).Interface())
 			}
 			paramsToArr = append(paramsToArr, "("+strings.Join(tmp, ",")+")")
 		case "between", "not between":
-			var ar2 = t.New(argsReal[2]).Slice()
+			var ar2 = New(argsReal[2]).Slice()
 			paramsToArr = append(paramsToArr, b.GetPlaceholder()+" and "+b.GetPlaceholder())
 			b.IOrm.SetBindValues(ar2[0].Interface())
 			b.IOrm.SetBindValues(ar2[1].Interface())

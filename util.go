@@ -9,8 +9,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-
-	"github.com/gohouse/t"
 )
 
 // tagNameCache 按 (类型, tag名) 缓存 getTagName 的反射解析结果
@@ -117,8 +115,8 @@ func If(condition bool, trueVal, falseVal interface{}) interface{} {
 
 // InArray :给定元素值 是否在 指定的数组中
 func inArray(needle, hystack interface{}) bool {
-	nt := t.New(needle)
-	for _, item := range t.New(hystack).Slice() {
+	nt := New(needle)
+	for _, item := range New(hystack).Slice() {
 		if strings.EqualFold(nt.String(), item.String()) {
 			return true
 		}

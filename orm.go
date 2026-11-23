@@ -2,8 +2,6 @@ package gorose
 
 import (
 	"strings"
-
-	"github.com/gohouse/t"
 )
 
 // type TransactionHandlerFunc func(db IOrm) error
@@ -198,7 +196,7 @@ func (dba *Orm) SubWhere(field, condition, sql string, args []interface{}) IOrm 
 // Where : query or execute where condition, the relation is and
 func (dba *Orm) Where(args ...interface{}) IOrm {
 	if len(args) == 0 ||
-		t.New(args[0]).Bool() == false {
+		New(args[0]).Bool() == false {
 		return dba
 	}
 	// 如果只传入一个参数, 则可能是字符串、一维对象、二维数组

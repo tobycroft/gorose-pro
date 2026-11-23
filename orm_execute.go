@@ -2,7 +2,6 @@ package gorose
 
 import (
 	"errors"
-	"github.com/gohouse/t"
 	"reflect"
 )
 
@@ -115,14 +114,14 @@ func (dba *Orm) Increment(args ...interface{}) (int64, error) {
 	var value = "1"
 	switch argLen {
 	case 1:
-		field = t.New(args[0]).String()
+		field = New(args[0]).String()
 	case 2:
-		field = t.New(args[0]).String()
-		value = t.New(args[1]).String()
+		field = New(args[0]).String()
+		value = New(args[1]).String()
 	case 3:
-		field = t.New(args[0]).String()
-		value = t.New(args[1]).String()
-		mode = t.New(args[2]).String()
+		field = New(args[0]).String()
+		value = New(args[1]).String()
+		mode = New(args[2]).String()
 	default:
 		return 0, errors.New("参数数量只允许1个,2个或3个")
 	}

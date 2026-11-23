@@ -6,8 +6,6 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
-
-	"github.com/gohouse/t"
 )
 
 var operator = []string{"=", ">", "<", "!=", "<>", ">=", "<=", "like", "not like",
@@ -199,14 +197,14 @@ func (b *BuilderDefault) BuildData(operType string) (string, string, string) {
 	case reflect.Struct:
 		return b.parseData(operType, StructContent2Map(data, b.IOrm.GetExtraCols()))
 	case reflect.Map:
-		var tmp = []map[string]interface{}{t.New(data).MapStringInterface()}
+		var tmp = []map[string]interface{}{New(data).MapStringInterface()}
 		return b.parseData(operType, tmp)
 	case reflect.Slice:
 		switch ref.Type().Elem().Kind() {
 		case reflect.Struct:
 			return b.parseData(operType, StructContent2Map(data, b.IOrm.GetExtraCols()))
 		case reflect.Map:
-			return b.parseData(operType, t.New(data).SliceMapStringInterface())
+			return b.parseData(operType, New(data).SliceMapStringInterface())
 		}
 	case reflect.String:
 		return data.(string), "", ""
@@ -228,7 +226,7 @@ func (b *BuilderDefault) BuildData2(operType string) (string, string, string) {
 	case string:
 		dataObj = append(dataObj, data)
 	case []map[string]interface{}, []Data: // insert multi datas ([]map[string]interface{})
-		sliceData := t.New(data).Slice()
+		sliceData := New(data).Slice()
 		// map 遍历的 key 天然唯一, 直接收集即可
 		for key := range sliceData[0].MapStringT() {
 			dataFields = append(dataFields, key)
@@ -248,7 +246,7 @@ func (b *BuilderDefault) BuildData2(operType string) (string, string, string) {
 		}
 	case map[string]interface{}, Data: // update or insert (map[string]interface{})
 		var dataValuesSub []string
-		for key, val := range t.New(data).MapStringT() {
+		for key, val := range New(data).MapStringT() {
 			if operType == "insert" {
 				// insert
 				dataFields = append(dataFields, key)
@@ -656,9 +654,9 @@ func (b *BuilderDefault) parseParams(args []interface{}, _ IOrm) (s string, err 
 
 		paramsToArr = append(paramsToArr, "("+argsReal[2].(string)+")")
 
-		var ar2 = t.New(argsReal[3]).Slice()
+		var ar2 = New(argsReal[3]).Slice()
 		for _, item := range ar2 {
-			b.SetBindValues(t.New(item).Interface())
+			b.SetBindValues(New(item).Interface())
 		}
 
 	case 3: // 常规3个参数:  {"id",">",1}
@@ -673,21 +671,21 @@ func (b *BuilderDefault) parseParams(args []interface{}, _ IOrm) (s string, err 
 		paramsToArr = append(paramsToArr, b.current.AddFieldQuotes(argsReal[0].(string)))
 		paramsToArr = append(paramsToArr, argsReal[1].(string))
 
-		switch strings.Trim(strings.ToLower(t.New(argsReal[1]).String()), " ") {
+		switch strings.Trim(strings.ToLower(New(argsReal[1]).String()), " ") {
 		//case "like", "not like":
 		//	paramsToArr = append(paramsToArr, b.GetPlaceholder())
 		//	b.SetBindValues(argsReal[2])
 		case "in", "not in":
-			var ar2 = t.New(argsReal[2]).Slice()
+			var ar2 = New(argsReal[2]).Slice()
 			tmp := make([]string, 0, len(ar2))
 			for _, item := range ar2 {
 				tmp = append(tmp, b.GetPlaceholder())
-				b.SetBindValues(t.New(item).Interface())
+				b.SetBindValues(New(item).Interface())
 			}
 			paramsToArr = append(paramsToArr, "("+strings.Join(tmp, ",")+")")
 
 		case "between", "not between":
-			var ar2 = t.New(argsReal[2]).Slice()
+			var ar2 = New(argsReal[2]).Slice()
 			paramsToArr = append(paramsToArr, b.GetPlaceholder()+" and "+b.GetPlaceholder())
 			b.SetBindValues(ar2[0].Interface())
 			b.SetBindValues(ar2[1].Interface())

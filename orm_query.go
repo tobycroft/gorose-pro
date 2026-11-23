@@ -2,7 +2,6 @@ package gorose
 
 import (
 	"errors"
-	"github.com/gohouse/t"
 	"math"
 	"reflect"
 	"strings"
@@ -124,7 +123,7 @@ func (dba *Orm) Count(args ...string) (int64, error) {
 	if count == nil {
 		return 0, err
 	}
-	return t.New(count).Int64(), err
+	return New(count).Int64(), err
 }
 
 // Counts is a Nested-Count function in order to solve the wrong number output when using count and groupBy in the same time : select count (select count.....)
@@ -156,7 +155,7 @@ func (dba *Orm) Counts(count_fileds ...string) (int64, error) {
 		if len(total_number) < 1 {
 			return 0, err
 		}
-		return t.New(total_number[0]["COUNT"]).Int64(), err
+		return New(total_number[0]["COUNT"]).Int64(), err
 	}
 }
 
@@ -288,7 +287,7 @@ func (dba *Orm) Pluck_bak(field string, fieldKey ...string) (v interface{}, err 
 			}
 		}
 	case OBJECT_MAP_SLICE, OBJECT_MAP_SLICE_T:
-		for _, item := range t.New(binder.GetBindResultSlice().Interface()).Slice() {
+		for _, item := range New(binder.GetBindResultSlice().Interface()).Slice() {
 			val := item.MapInterfaceT()
 			if len(fieldKey) > 0 {
 				resMap[val[fieldKey[0]].Interface()] = val[field].Interface()
