@@ -532,7 +532,9 @@ func (s *Session) scanAll(rows *sql.Rows) (err error) {
 	var result = []Data{}
 	for rows.Next() {
 		// 获取结果
-		_ = rows.Scan(scanArgs...)
+		if err = rows.Scan(scanArgs...); err != nil {
+			return
+		}
 
 		// 定义预设的绑定对象, 按列数预估容量
 		var resultTmp = make(Data, count)
@@ -558,7 +560,7 @@ func (s *Session) scanAll(rows *sql.Rows) (err error) {
 		result = append(result, resultTmp)
 	}
 	s.IBinder.SetBindAll(result)
-	return
+	return rows.Err()
 }
 
 // SetUnion ...
