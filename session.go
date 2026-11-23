@@ -4,12 +4,13 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/gohouse/t"
 	"reflect"
 	"strconv"
 	"strings"
 	"sync/atomic"
 	"time"
+
+	"github.com/gohouse/t"
 )
 
 const beginStatus = 0
@@ -64,7 +65,8 @@ func (s *Session) SetIEngin(ie IEngin) {
 }
 
 // Bind : 传入绑定结果的对象, 参数一为对象, 可以是 struct, gorose.MapRow 或对应的切片
-//		如果是做非query操作,第一个参数也可以仅仅指定为字符串表名
+//
+//	如果是做非query操作,第一个参数也可以仅仅指定为字符串表名
 func (s *Session) Bind(tab interface{}) ISession {
 	//fmt.Println(tab, NewBinder(tab))
 	//s.SetIBinder(NewBinder(tab))
@@ -209,11 +211,12 @@ func (s *Session) Query(sqlstring string, args ...interface{}) (result []Data, e
 		// 之前的绑定解析出错, 直接返回, 不再执行查询
 		return
 	}
-	// 记录sqlLog
-	s.lastSql = fmt.Sprint(sqlstring, ", ", args)
-	//if s.IfEnableSqlLog() {
-	//	s.sqlLogs = append(s.sqlLogs, s.lastSql)
-	//}
+	// 记录sqlLog: 惰性格式化, 仅在启用 SQL 日志或慢查询日志时才格式化, 避免高频小查询的无效开销
+	if s.GetIEngin().GetLogger().EnableSqlLog() || s.GetIEngin().GetLogger().EnableSlowLog() > 0 {
+		s.lastSql = fmt.Sprint(sqlstring, ", ", args)
+	} else {
+		s.lastSql = ""
+	}
 
 	// 直接执行查询, 避免 Prepare+Close 带来的额外网络往返
 	var rows *sql.Rows
@@ -268,11 +271,12 @@ func (s *Session) Execute(sqlstring string, args ...interface{}) (rowsAffected i
 		s.GetIEngin().GetLogger().Error(err.Error())
 		return
 	}
-	s.lastSql = fmt.Sprint(sqlstring, ", ", args)
-	//// 记录sqlLog
-	//if s.IfEnableSqlLog() {
-	//	s.sqlLogs = append(s.sqlLogs, s.lastSql)
-	//}
+	// 记录sqlLog: 惰性格式化, 仅在启用 SQL 日志或慢查询日志时才格式化, 避免高频小查询的无效开销
+	if s.GetIEngin().GetLogger().EnableSqlLog() || s.GetIEngin().GetLogger().EnableSlowLog() > 0 {
+		s.lastSql = fmt.Sprint(sqlstring, ", ", args)
+	} else {
+		s.lastSql = ""
+	}
 
 	var operType = strings.ToLower(sqlstring[0:6])
 	if operType == "select" {
