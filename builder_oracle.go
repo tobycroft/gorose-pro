@@ -3,12 +3,12 @@ package gorose
 import (
 	"errors"
 	"fmt"
-	"github.com/gohouse/golib/structEngin"
-	"github.com/gohouse/t"
 	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/gohouse/t"
 )
 
 const (
@@ -303,14 +303,14 @@ func (b *BuilderOracle) BuildData(operType string) (string, string, string) {
 
 	switch ref.Kind() {
 	case reflect.Struct:
-		return b.parseData(operType, structEngin.New().SetExtraCols(b.IOrm.GetExtraCols()).StructContent2Map(data))
+		return b.parseData(operType, StructContent2Map(data, b.IOrm.GetExtraCols()))
 	case reflect.Map:
 		var tmp = []map[string]interface{}{t.New(data).MapStringInterface()}
 		return b.parseData(operType, tmp)
 	case reflect.Slice:
 		switch ref.Type().Elem().Kind() {
 		case reflect.Struct:
-			return b.parseData(operType, structEngin.New().SetExtraCols(b.IOrm.GetExtraCols()).StructContent2Map(data))
+			return b.parseData(operType, StructContent2Map(data, b.IOrm.GetExtraCols()))
 		case reflect.Map:
 			return b.parseData(operType, t.New(data).SliceMapStringInterface())
 		}
