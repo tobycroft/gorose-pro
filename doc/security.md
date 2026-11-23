@@ -1,39 +1,60 @@
-# 安全相关
+---
+title: 安全相关（SQL 注入防护）
+description: 使用参数化查询防止 SQL 注入，Where 与手写 SQL 的安全用法与危险用法。
+order: 8
+category: 安全
+---
 
-1.都用上prepare了，基本上不会有注入了，这里说个真实的案例，我最早是从PHP过来的，在PHP那边我对prepare滚瓜烂熟
-但是毕竟golang是新的战场，再加上orm的不完善，另外就是我的业务逻辑很特殊，所以很多时候是需要直接写SQL语句的，
-在早期，我使用query语句的时候，将值直接写到了sql语句中，那么懂行的人就知道这是会导致preparestatement降级成emulate
-模式运行的罪魁祸首，并且会导致注入，加之当时比比较赶，又刚学Go，就没注意，就写完当天晚上怎么都睡不着，总感觉代码不对
-然后起来看sql这块的，就看到了
-~~~
-db.query("select * from table where user=参数")
-~~~
-当然我不是这么写的拉，只是举个栗子，我那个句子大概写满了半个屏幕，问题点大概是上面这样，直接写参数值的
+# 安全相关（SQL 注入防护）
 
-我一想，不对啊！PHP人家都有处理方法怎么Go没有，我就到gorose开发那边去问，没问出结果，文档也没有
+## 核心原则
 
-后来我才知道，使用
-~~~
-db.query("select * from table where user=?",[]interface{}{参数})
-~~~
-来查询，所以这里分享给大家
+Gorose Pro 已默认使用 prepare（参数化查询），正常情况下不会发生注入。风险主要出现在
+**手写 SQL** 或 **不当的 Where 传参** 时。
 
-当然我的项目没受到这个影响，毕竟不是B类的项目，不涉及￥没人盯
+## 1. 手写 SQL：必须使用参数占位符
 
-其他地方的安全问题还有就是在where查询的时候
-~~~
-db.where("user=参数")
-~~~
-也不要这么查询！这样也会导致注入
+**危险（直接拼接参数，会降级为 emulate 模式并导致注入）：**
 
-正确的方法应该是
-~~~
-db.where("user","=",参数)
-~~~
-或者
-~~~
-db.where("user",参数)
-~~~
+```go
+db.Query("select * from table where user=" + 参数)
+```
 
-你看对于ORM来说，就是这些简单而又细节的地方可能导致你的程序出现风险，所以安全无小事，其他的安全部分，
-你可以参考TP的安全说明，不过数据库这块也差不多就是我上面说的这些内容
+**安全（使用 `?` 占位符 + 参数）：**
+
+```go
+db.Query("select * from table where user=?", 参数)
+```
+
+> `Query` 签名为 `Query(sqlstring string, args ...interface{}) ([]Data, error)`，
+> 参数应作为可变参数传入，而非拼接到 SQL 字符串中。
+
+## 2. Where 传参：禁止拼接
+
+**危险（字段与值拼接）：**
+
+```go
+db.Where("user=" + 参数)
+```
+
+**安全（字段与值分离）：**
+
+```go
+db.Where("user", "=", 参数)
+// 或
+db.Where("user", 参数)
+```
+
+## 小结
+
+安全无小事，请始终使用参数化查询。数据库层面的安全要点即上述内容，
+其他安全细节可参考 ThinkPHP 安全说明。
+
+## 目录
+
+0. [基础准备](./base.md)
+1. [Select 方法](./select.md)
+2. [Find/First 方法](./find.md)
+3. [Update 方法](./update.md)
+4. [Delete 方法](./delete.md)
+5. [安全相关](./security.md)

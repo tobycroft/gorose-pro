@@ -1,102 +1,100 @@
+---
+title: 基础方法：数据库对象创建方式
+description: 创建法（每次新建对象）与注入法（外部注入对象）两种数据库对象获取方式，以及事务隔离对选择的影响。
+order: 1
+category: 基础
+---
+
 # 基础方法
 
+以下两种数据库对象获取方式将贯穿所有教程，请务必区分，并根据实际情况选择。
 
-以下两种方法将会贯穿我们的教程始终，请务必区分，根据实际情况来区分
+## 1. 创建法（每次查询新建对象）
 
-Tuuz.Db()方法是我的框架中创建数据库的方法，你可以根据你自己的情况来，后续不再赘述
-
-~~~
-看教程中，请仔细看我的文字！！！
-看教程中，请仔细看我的文字！！！
-看教程中，请仔细看我的文字！！！
-看教程中，请仔细看我的文字！！！
-看教程中，请仔细看我的文字！！！
-看教程中，请仔细看我的文字！！！
-
-~~~
-
-注意观察DB的生成！
-
-每次查询都创建新的数据库对象
+每次查询都调用 `tuuz.Db()` 创建新的数据库对象：
 
 ```go
 func Api_find(group_id, user_id, cid interface{}) gorose.Data {
-	//Tuuz.Db()方法是我的框架中创建数据库的方法，你可以根据你自己的情况来，后续不再赘述
-	db := Tuuz.Db().Table(table)
-	where := map[string]interface{}{
+	db := tuuz.Db().Table(table)
+	db.Where(map[string]interface{}{
 		"group_id": group_id,
 		"user_id":  user_id,
 		"cid":      cid,
-	}
-	db.Where(where)
+	})
 	ret, err := db.First()
 	if err != nil {
 		Log.Dbrr(err, tuuz.FUNCTION_ALL())
 		return nil
-	} else {
-		return ret
 	}
+	return ret
 }
 ```
 
-每次查询使用外部注入的数据库对象，请注意这里的type
+## 2. 注入法（使用外部注入的对象）
+
+每次查询使用外部注入的数据库对象，注意 `type` 定义：
 
 ```go
 type Interface struct {
-    Db gorose.IOrm
+	Db gorose.IOrm
 }
-
 
 func (self *Interface) Api_find(group_id, user_id, cid interface{}) gorose.Data {
 	db := self.Db.Table(table)
-	where := map[string]interface{}{
+	db.Where(map[string]interface{}{
 		"group_id": group_id,
 		"user_id":  user_id,
 		"cid":      cid,
-	}
-	db.Where(where)
+	})
 	ret, err := db.First()
 	if err != nil {
 		Log.Dbrr(err, tuuz.FUNCTION_ALL())
 		return nil
-	} else {
-		return ret
 	}
+	return ret
 }
 ```
-这两种方法需要在限定场景和非限定场景中选择
 
-请大家务必根据需要来进行选择，这里推荐使用新建数据的方法，能达到最高效率
+## 3. 如何选择
 
-这里选择使用注入方法和新生成方法的原因是如果在Transaction或者Nested Transaction方法下，事务因为是隔离的
-所以不在一个数据流（对象）下的查询是无法查询到隔离内的事务修改的，举个栗子
+| 方式 | 适用场景 | 说明 |
+|------|---------|------|
+| 创建法 | 普通查询 / 修改（推荐） | 每次新建对象，效率最高 |
+| 注入法 | 事务（Transaction）/ 嵌套事务 | 必须使用，保证同一数据流 |
 
-数据库中有一个字段A，里面只有一条数据，数据为123
+### 事务隔离原理
 
-例如在完全无事务的条件下流程是这样的：
+事务是隔离的，不在同一数据流（对象）下的查询无法读取到隔离内的事务修改。
 
-A->find[输出123]->update(A,456)->find[输出456]
+假设数据库字段 `A` 初始值为 `123`：
 
-在find使用创建法，update导入法
+**无事务场景：**
 
-A->开始事务->(不在事务中find[输出123])->update(A,456)->(不在事务中find[输出123])->提交事务->(不在事务中find[输出456])
+```
+A -> find[输出123] -> update(A,456) -> find[输出456]
+```
 
-find导入法，update导入法
+**find 用创建法、update 用注入法（错误）：**
 
-A->开始事务->find[输出123]->update(A,456)->find[输出456]->提交事务->find[输出456]
+```
+A -> 开始事务 -> (事务外 find[输出123]) -> update(A,456) -> (事务外 find[输出123]) -> 提交事务 -> (事务外 find[输出456])
+```
 
+事务外的 `find` 无法读取到未提交的 `456`。
 
-明白了吧？如果你做的是交易所或者资金类的程序，这个概念你必须要搞懂！
+**find / update 均用注入法（正确）：**
 
+```
+A -> 开始事务 -> find[输出123] -> update(A,456) -> find[输出456] -> 提交事务 -> find[输出456]
+```
 
-1.[select方法](./select.md)
+> 若开发交易所、资金类程序，必须理解此概念。
 
-2.[find/first方法](./find.md)
+## 目录
 
-3.[update方法](./update.md)
-
-4.[delete方法](./delete.md)
-
-5.[insert方法](./insert.md)
-
-6.[安全相关](./security.md)
+0. [基础准备](./base.md)
+1. [Select 方法](./select.md)
+2. [Find/First 方法](./find.md)
+3. [Update 方法](./update.md)
+4. [Delete 方法](./delete.md)
+5. [安全相关](./security.md)

@@ -1,25 +1,28 @@
-# 性能表现Performance-Test
+---
+title: 性能测试（PaginatorWG）
+description: PaginatorWG 协程分页相对旧版 Paginator 在真实生产与远距离环境下的延迟降低数据。
+order: 10
+category: 性能
+---
 
-## 实际生产环境下延迟降低：71.9827586206897%
+# 性能测试 Performance Test
 
-(Lantency Decrease 71%)
+## 1. 实际生产环境延迟降低：约 71.98%
 
-阿里云RDS项目实测
+（Latency Decrease 71%）
 
-- 原版：
-    - ![img_1.png](img_1.png)
-- 新版：
-    - ![img.png](img.png)
+阿里云 RDS 项目实测：
 
-## 远距离环境下延迟减少：28.9115646258503%
+- 原版：![img_1.png](img_1.png)
+- 新版：![img.png](img.png)
 
-以下内容仅程序处理时间
+## 2. 远距离环境延迟减少：约 28.91%
 
-Lantency only for the binary file
+以下内容仅统计程序处理时间（Latency only for the binary file）：
 
 | Old-Paginator | New-PaginatorWG |
 |---------------|-----------------|
-| 1144ms        | 971.641152ms    |          
+| 1144ms        | 971.641152ms    |
 | 1134ms        | 968.76604ms     |
 | 1140ms        | 964.523454ms    |
 | 1137ms        | 968.157527ms    |
@@ -33,6 +36,3 @@ Lantency only for the binary file
 
 - 极限性能提高：28.9115646258503%
 - 最低性能提高：0.17827868852459%
-
-
-

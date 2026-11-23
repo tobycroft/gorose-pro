@@ -1,73 +1,69 @@
-# Find/First查找单条数据的方法
+---
+title: Find / First 单条查询
+description: 使用 First 查询单条数据、Value 取单值，以及创建法与注入法的组合使用。
+order: 3
+category: 查询
+---
 
-基础方法已经在base里面展示过了，这里说个特殊的
+# Find / First 方法（单条查询）
 
-如果大多数时候希望直接创建法，在做资金查询的时候使用注入法，要怎么做呢？
+## 1. 创建法与注入法组合
 
-很简单，先把注入法写好，再写一个创建法，创建后注入Interface里面即可
+大多数场景使用创建法，资金类查询使用注入法。可先写好注入法版本，再写一个创建法版本，
+创建后注入 `Interface` 即可：
 
 ```go
 type Interface struct {
-Db gorose.IOrm
+	Db gorose.IOrm
 }
 
 func Api_find(group_id, user_id, dj_id interface{}) gorose.Data {
 	var self Interface
 	self.Db = tuuz.Db()
-	return Api_find(group_id, user_id, dj_id)
+	return self.Api_find(group_id, user_id, dj_id)
 }
 
 func (self *Interface) Api_find(group_id, user_id, dj_id interface{}) gorose.Data {
 	db := self.Db.Table(table)
-	where := map[string]interface{}{
+	db.Where(map[string]interface{}{
 		"group_id": group_id,
 		"user_id":  user_id,
 		"dj_id":    dj_id,
-	}
-	db.Where(where)
+	})
 	data, err := db.First()
 	if err != nil {
 		Log.Dbrr(err, tuuz.FUNCTION_ALL())
 		return nil
-	} else {
-		return data
 	}
+	return data
 }
 ```
 
+## 2. Value 取单值
 
-find方法十分的简单，没有难度，相信大家会很快上手
-
-find方法中没有太多骚操作，除此之外还有value拉sum拉之类的方法，大同小异
+`find` 之外还有 `value`、`sum` 等方法，大同小异：
 
 ```go
 func Api_value_balance(group_id, user_id interface{}) interface{} {
 	db := tuuz.Db().Table(table)
-	where := map[string]interface{}{
+	db.Where(map[string]interface{}{
 		"group_id": group_id,
 		"user_id":  user_id,
-	}
-	db.Where(where)
+	})
 	ret, err := db.Value("balance")
 	if err != nil {
 		Log.Dbrr(err, tuuz.FUNCTION_ALL())
 		return nil
-	} else {
-		return ret
 	}
+	return ret
 }
 ```
 
+## 目录
 
-
-0.[基础准备](./base.md)
-
-1.[select方法](./select.md)
-
-3.[update方法](./update.md)
-
-4.[delete方法](./delete.md)
-
-5.[insert方法](./insert.md)
-
-6.[安全相关](./security.md)
+0. [基础准备](./base.md)
+1. [Select 方法](./select.md)
+2. [Find/First 方法](./find.md)
+3. [Update 方法](./update.md)
+4. [Delete 方法](./delete.md)
+5. [安全相关](./security.md)
